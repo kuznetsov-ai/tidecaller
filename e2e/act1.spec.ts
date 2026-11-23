@@ -1,8 +1,13 @@
 import { expect, test } from '@playwright/test';
 import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 
-const shots = '/opt/cursor/artifacts';
-fs.mkdirSync(shots, { recursive: true });
+// Screenshots go to E2E_SHOTS if set, otherwise a temp folder — never a hard-coded system path.
+const shots = process.env.E2E_SHOTS ?? path.join(os.tmpdir(), 'tidecaller-e2e');
+test.beforeAll(() => {
+  fs.mkdirSync(shots, { recursive: true });
+});
 
 test('first act is playable without console errors', async ({ page }) => {
   const errors: string[] = [];
