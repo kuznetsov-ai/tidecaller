@@ -570,7 +570,7 @@ function eventChoose(state: GameState, index: number, rng: Rng): void {
   }
 }
 
-function tutorialPlayOk(step: number | null, cardId: string): boolean {
+export function tutorialPlayOk(step: number | null, cardId: string): boolean {
   if (step === null || step >= 4) return true;
   if (step === 0) return cardId === 'reed_strike';
   if (step === 1) return cardId === 'kelp_guard';
@@ -709,7 +709,6 @@ function apply(state: GameState, action: Action, rng: Rng): void {
       if (node.kind === 'combat' || node.kind === 'elite' || node.kind === 'boss') {
         const kind = node.kind === 'boss' ? 'boss' : node.kind === 'elite' ? 'elite' : 'combat';
         const ids = rollEncounter(run, rng, kind, node.row);
-        node.encounter = ids;
         beginFight(state, rng, ids, kind, node.row);
       } else if (node.kind === 'event') {
         const pool = EVENT_LIST.filter((e) => !run.seenEvents.includes(e.id));
@@ -755,15 +754,13 @@ function apply(state: GameState, action: Action, rng: Rng): void {
     case 'endTurn': {
       if (!state.combat || state.combat.phase !== 'player' || state.pending) return;
       if (state.tutorialStep !== null && state.tutorialStep < 3) return;
-      if (state.tutorialStep !== null && state.tutorialStep > 3 && state.tutorialStep < 4) return;
       const fx = endTurn(state.combat, rng);
       pushFx(state, fx);
       advanceTutorial(state, false);
       return;
     }
     case 'drink': {
-      if (!state.combat || state.tutorialStep !== null && state.tutorialStep < 4) return;
-      if (!state.combat) return;
+      if (!state.combat || (state.tutorialStep !== null && state.tutorialStep < 4)) return;
       pushFx(state, drinkPhial(state.combat, action.index, rng, state.target));
       return;
     }

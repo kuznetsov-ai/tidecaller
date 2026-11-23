@@ -219,7 +219,7 @@ export function EnemyPlate({
   onSelect: () => void;
 }) {
   const enemy = combat.enemies[index];
-  const def = ENEMIES[enemy.defId];
+  const def = enemy ? ENEMIES[enemy.defId] : undefined;
   if (!enemy || !def) return null;
   const intents = previewIntents(enemy, combat);
   return (

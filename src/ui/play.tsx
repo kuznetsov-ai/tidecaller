@@ -9,6 +9,7 @@ import { PauseApi } from './shell';
 import { ACT_NAME, tr, tx } from './tx';
 import { CoachMarks } from './hints';
 import { CardFace, EnemyPlate, HudStats, RelicRow, TideGauge, debtNote } from './widgets';
+import { tutorialPlayOk } from '../game/reducer';
 
 const TUTOR = [
   {
@@ -33,13 +34,6 @@ const TUTOR = [
   },
 ];
 
-function allowed(step: number | null, id: string): boolean {
-  if (step === null || step >= 4) return true;
-  if (step === 0) return id === 'reed_strike';
-  if (step === 1) return id === 'kelp_guard';
-  if (step === 2) return id === 'buoy_toss' || id === 'lantern_tap';
-  return false;
-}
 
 export function CombatScreen() {
   const state = useGame();
@@ -150,7 +144,7 @@ export function CombatScreen() {
               !!def &&
               !def.unplayable &&
               cardCost(card, combat) <= combat.energy &&
-              allowed(state.tutorialStep, card.id);
+              tutorialPlayOk(state.tutorialStep, card.id);
             return (
               <CardFace
                 key={card.uid}

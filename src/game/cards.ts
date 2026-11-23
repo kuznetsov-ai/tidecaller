@@ -640,9 +640,3 @@ export function poolFor(
   );
 }
 
-export const AFFINITY_NAME: Record<Affinity, L> = {
-  ebb: { ru: 'отлив', en: 'ebb' },
-  flood: { ru: 'паводок', en: 'flood' },
-  slack: { ru: 'штиль', en: 'slack' },
-  wild: { ru: 'вольная', en: 'wild' },
-};
