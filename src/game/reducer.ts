@@ -16,6 +16,7 @@ import type {
   GameState,
   MetaState,
   PhialId,
+  PickerState,
   Rarity,
   RewardState,
   RunState,
@@ -339,13 +340,43 @@ function realCount(run: RunState): number {
   }).length;
 }
 
-function canRemove(run: RunState, uid: string): boolean {
+export function canRemove(run: RunState, uid: string): boolean {
   const card = run.deck.find((c) => c.uid === uid);
   if (!card) return false;
   const def = CARDS[card.id];
   if (!def) return false;
   if (def.rarity === 'curse') return true;
   return realCount(run) > 5;
+}
+
+/** Cards a picker of this mode would accept (the UI shows exactly these). */
+export function pickerCards(run: RunState, mode: PickerState['mode']): CardInst[] {
+  return run.deck.filter((card) => {
+    const def = CARDS[card.id];
+    if (!def) return false;
+    if (mode === 'remove') return canRemove(run, card.uid);
+    if (mode === 'upgrade') return !!def.up && !card.up && def.rarity !== 'curse' && def.rarity !== 'status';
+    if (mode === 'duplicate') return def.rarity !== 'curse' && def.rarity !== 'status';
+    return def.rarity !== 'status';
+  });
+}
+
+/** Why an event option cannot be taken right now (null = it can). */
+export function eventChoiceBlock(state: GameState, index: number): { ru: string; en: string } | null {
+  const run = state.run;
+  const id = state.eventId;
+  if (!run || !id) return null;
+  const hull = (n: number) => (run.hp <= n ? { ru: `Нужно больше ${n} корпуса.`, en: `Needs more than ${n} hull.` } : null);
+  const none = (mode: PickerState['mode']) =>
+    pickerCards(run, mode).length ? null : { ru: 'Нет подходящих карт.', en: 'No card qualifies.' };
+  if (id === 'wreck' && index === 0) return hull(10);
+  if (id === 'shrine' && index === 0) return hull(14);
+  if (id === 'smuggler' && index === 0) return run.gold < 35 ? { ru: 'Нужно 35 монет.', en: 'Needs 35 coins.' } : none('duplicate');
+  if (id === 'smuggler' && index === 2) return hull(8);
+  if ((id === 'choir' && index === 0) || (id === 'eel' && index === 1)) return none('remove');
+  if ((id === 'choir' && index === 1) || (id === 'moonwell' && index === 0)) return none('upgrade');
+  if (id === 'moonwell' && index === 1) return none('transform');
+  return null;
 }
 
 function applyPicker(state: GameState, uid: string, rng: Rng): void {
@@ -377,7 +408,8 @@ function applyPicker(state: GameState, uid: string, rng: Rng): void {
   }
   picker.left -= 1;
   picker.pay = undefined;
-  if (picker.left > 0) return;
+  picker.committed = true;
+  if (picker.left > 0 && pickerCards(run, picker.mode).length > 0) return;
   if (picker.grantGold) run.gold += picker.grantGold;
   state.picker = null;
   if (picker.context === 'event') {
@@ -390,6 +422,7 @@ function eventChoose(state: GameState, index: number, rng: Rng): void {
   const run = state.run;
   const id = state.eventId;
   if (!run || !id || state.picker) return;
+  if (eventChoiceBlock(state, index)) return;
   const done = () => {
     state.eventId = null;
     state.screen = 'map';
@@ -837,9 +870,16 @@ function apply(state: GameState, action: Action, rng: Rng): void {
     case 'pickerPick':
       applyPicker(state, action.uid, rng);
       return;
-    case 'pickerCancel':
+    case 'pickerCancel': {
+      const picker = state.picker;
       state.picker = null;
+      // Once a pick has been applied the event is spent: leave instead of re-offering it.
+      if (picker?.context === 'event' && picker.committed) {
+        state.eventId = null;
+        state.screen = 'map';
+      }
       return;
+    }
     case 'buyUnlock': {
       const meta = state.meta;
       const spend = (cost: number, applyUnlock: () => void, owned: boolean) => {

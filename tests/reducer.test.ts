@@ -412,3 +412,31 @@ describe('whole runs with the greedy policy (all heroes)', () => {
     });
   }
 });
+
+describe('event guards are visible, not silent', () => {
+  it('blocked options report a reason and do nothing', async () => {
+    const { eventChoiceBlock } = await import('../src/game/reducer');
+    const low = atEvent('wreck', (s) => (s.run!.hp = 10));
+    expect(eventChoiceBlock(low, 0)).not.toBeNull();
+    expect(eventChoiceBlock(low, 1)).toBeNull();
+    const poor = atEvent('smuggler', (s) => (s.run!.gold = 0));
+    expect(eventChoiceBlock(poor, 0)?.en).toMatch(/35/);
+    const noUp = atEvent('moonwell', (s) => s.run!.deck.forEach((c) => (c.up = true)));
+    expect(eventChoiceBlock(noUp, 0)).not.toBeNull();
+    expect(reduce(noUp, { type: 'eventChoose', index: 0 }).picker).toBeNull();
+  });
+  it('remove pickers only list removable cards (5 real cards left → only curses)', async () => {
+    const { pickerCards } = await import('../src/game/reducer');
+    const s = inRun();
+    s.run!.deck = s.run!.deck.slice(0, 5);
+    s.run!.deck.push({ uid: 'c', id: 'hole', up: false });
+    expect(pickerCards(s.run!, 'remove').map((c) => c.id)).toEqual(['hole']);
+  });
+  it('moonwell upgrade ends after one pick when nothing else can be upgraded', () => {
+    let s = atEvent('moonwell', (st) => st.run!.deck.forEach((c, i) => (c.up = i > 0)));
+    s = reduce(s, { type: 'eventChoose', index: 0 });
+    s = reduce(s, { type: 'pickerPick', uid: s.run!.deck[0].uid });
+    expect(s.picker).toBeNull();
+    expect(s.screen).toBe('map');
+  });
+});

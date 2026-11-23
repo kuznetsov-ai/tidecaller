@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { CARDS } from '../game/cards';
 import { EVENTS } from '../game/events';
 import { PHIALS } from '../game/phials';
+import { eventChoiceBlock, pickerCards } from '../game/reducer';
 import { RELICS } from '../game/relics';
 import type { CardInst } from '../game/types';
 import { dispatch, useGame } from '../state';
@@ -223,7 +224,7 @@ export function ShopScreen() {
       )}
       {removing && (
         <Picker
-          cards={run.deck}
+          cards={pickerCards(run, 'remove')}
           lang={lang}
           onPick={(uid) => {
             dispatch({ type: 'shopRemove', uid });
@@ -250,9 +251,16 @@ export function EventScreen() {
       {!state.picker && (
         <div className="choices">
           {event.choices.map((choice, index) => (
-            <button key={choice.text.ru} type="button" data-testid="event-choice" onClick={() => dispatch({ type: 'eventChoose', index })}>
+            <button
+              key={choice.text.ru}
+              type="button"
+              data-testid="event-choice"
+              disabled={!!eventChoiceBlock(state, index)}
+              onClick={() => dispatch({ type: 'eventChoose', index })}
+            >
               <strong>{tr(choice.text, lang)}</strong>
               <small>{tr(choice.hint, lang)}</small>
+              {eventChoiceBlock(state, index) && <small className="why">{tr(eventChoiceBlock(state, index)!, lang)}</small>}
             </button>
           ))}
         </div>
@@ -269,13 +277,7 @@ export function EventScreen() {
                 : tx(lang, 'Какой узел переписать', 'Which knot to rewrite')}
         </h2>
         <Picker
-          cards={run.deck.filter((card) => {
-            const def = CARDS[card.id];
-            if (!def) return false;
-            if (state.picker?.mode === 'upgrade') return !!def.up && !card.up && def.rarity !== 'curse';
-            if (state.picker?.mode === 'duplicate') return def.rarity !== 'curse' && def.rarity !== 'status';
-            return def.rarity !== 'status';
-          })}
+          cards={pickerCards(run, state.picker.mode)}
           lang={lang}
           onPick={(uid) => dispatch({ type: 'pickerPick', uid })}
           onCancel={() => dispatch({ type: 'pickerCancel' })}

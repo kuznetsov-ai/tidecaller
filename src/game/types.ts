@@ -276,6 +276,8 @@ export interface PickerState {
   left: number;
   grantGold?: number;
   pay?: number;
+  /** at least one pick already applied: cancelling now ends the event instead of reopening it */
+  committed?: boolean;
 }
 
 export interface MetaState {

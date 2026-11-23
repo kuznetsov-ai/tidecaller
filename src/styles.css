@@ -262,3 +262,4 @@ body.reduced *, body.reduced *::before { animation: none !important; transition:
   .card { width: 132px; min-height: 196px; }
   h1 { font-size: 40px; }
 }
+.choices small.why { color: var(--coral); }
