@@ -249,8 +249,8 @@ export const ENEMY_LIST: EnemyDef[] = [
     art: 'madam',
     boss: true,
     tip: {
-      ru: 'На втором такте повторяет ваш последний узел. Слабая карта перед звоном — это ответ.',
-      en: 'On the second beat she repeats your last knot. A small card before the chime is the answer.',
+      ru: 'На втором такте отзванивает ваш последний узел против вас: урон, защиту, соль — а сдвиг прилива в обратную сторону. Слабая карта перед звоном — это ответ.',
+      en: 'On the second beat she rings your last knot back at you: damage, block, salt — and a tide shift in reverse. A small card before the chime is the answer.',
     },
     script: madam,
   },

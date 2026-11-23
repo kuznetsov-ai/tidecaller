@@ -63,8 +63,8 @@ function line(effect: Effect, lang: Lang, affinity: Affinity, mods?: Mods): stri
               : 'If storm'
             : effect.when === 'lowHp'
               ? ru
-                ? 'Если корпус ниже половины'
-                : 'If hull is below half'
+                ? 'Если корпус — половина или меньше'
+                : 'If hull is at half or less'
               : ru
                 ? 'Если враг собирается двигать прилив'
                 : 'If an enemy intends to move the tide';

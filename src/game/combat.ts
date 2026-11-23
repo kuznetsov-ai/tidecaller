@@ -1,4 +1,4 @@
-import { CARDS, effectsOf, movesTide } from './cards';
+import { CARDS, effectsOf } from './cards';
 import { ENEMIES, rawIntents } from './enemies';
 import { newUid, type Rng } from './rng';
 import { affinityOn, clampTide, willDrift } from './tide';
@@ -355,6 +355,7 @@ function setTide(combat: CombatState, to: number, fx: Fx[], rng: Rng, cause: 'ca
   }
   if (
     combat.phase === 'player' &&
+    cause !== 'drift' &&
     Math.abs(v - from) >= 2 &&
     combat.relics.includes('salt_compass') &&
     !combat.compassUsed
@@ -374,6 +375,7 @@ function setTide(combat: CombatState, to: number, fx: Fx[], rng: Rng, cause: 'ca
 }
 
 interface Rctx {
+  moved?: boolean;
   affinity: import('./types').Affinity;
   target: number;
   echo: { dmg: number; block: number; salt: number; tide: number };
@@ -428,12 +430,14 @@ function resolveEffects(combat: CombatState, effects: Effect[], ctx: Rctx, rng: 
     if (effect.op === 'tide') {
       const before = combat.tide;
       setTide(combat, combat.tide + effect.d, fx, rng, 'card');
+      if (combat.tide !== before) ctx.moved = true;
       ctx.echo.tide += combat.tide - before;
       continue;
     }
     if (effect.op === 'tideSet') {
       const before = combat.tide;
       setTide(combat, effect.v, fx, rng, 'card');
+      if (combat.tide !== before) ctx.moved = true;
       ctx.echo.tide += combat.tide - before;
       continue;
     }
@@ -529,7 +533,7 @@ export function playCard(
   };
   const patched = effects.map((e) => (e.op === 'tideChoose' && opt.tideDir ? { op: 'tide' as const, d: opt.tideDir * e.d } : e));
   resolveEffects(combat, patched, ctx, rng, fx);
-  if (movesTide(effects) && combat.relics.includes('counterweight')) gainBlock(combat, 3, fx);
+  if (ctx.moved && combat.relics.includes('counterweight')) gainBlock(combat, 3, fx);
   if (ctx.echo.dmg > 0) combat.echo = { kind: 'damage', n: ctx.echo.dmg };
   else if (ctx.echo.block > 0) combat.echo = { kind: 'block', n: ctx.echo.block };
   else if (ctx.echo.salt > 0) combat.echo = { kind: 'salt', n: ctx.echo.salt };

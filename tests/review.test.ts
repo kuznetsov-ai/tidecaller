@@ -243,3 +243,22 @@ describe('reducer input validation (review P2-4, P2-22)', () => {
     expect(t.run).toBe(null);
   });
 });
+
+describe('relic edge cases (review P2-8, P2-9)', () => {
+  it('Counterweight gives no block when the tide is pinned and does not move', () => {
+    const c = mkCombat(['salt_knight'], { tide: 8, relics: ['counterweight'] });
+    c.energy = 3;
+    c.player.block = 0;
+    const k = give(c, card('spring_tide'))[0];
+    playCard(c, k.uid, rng(), { target: 0 });
+    expect(c.player.block).toBe(0);
+  });
+  it('Salt Compass does not draw off the end-of-turn drift (Glass Moon 6→4)', () => {
+    const c = mkCombat(['salt_knight'], { tide: 6, relics: ['salt_compass', 'glass_moon'] });
+    c.player.hp = c.player.maxHp = 999;
+    c.hand = [];
+    c.enemies[0].pi = 1;
+    endTurn(c, rng());
+    expect(c.hand.length).toBe(5);
+  });
+});

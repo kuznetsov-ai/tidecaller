@@ -92,7 +92,7 @@ export function CombatScreen() {
                     ? tx(lang, `${echo.n} защиты`, `${echo.n} block`)
                     : echo.kind === 'salt'
                       ? tx(lang, `${echo.n} соли`, `${echo.n} salt`)
-                      : tx(lang, `прилив ${echo.n > 0 ? '+' : ''}${echo.n}`, `tide ${echo.n > 0 ? '+' : ''}${echo.n}`)}
+                      : tx(lang, `прилив ${echo.n > 0 ? '+' : ''}${echo.n} — она сдвинет на ${-echo.n > 0 ? '+' : ''}${-echo.n}`, `tide ${echo.n > 0 ? '+' : ''}${echo.n}; she shifts it ${-echo.n > 0 ? '+' : ''}${-echo.n}`)}
             </p>
           )}
           <div className={`enemies count-${Math.min(combat.enemies.length, 3)}`}>
