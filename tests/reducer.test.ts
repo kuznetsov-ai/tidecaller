@@ -440,3 +440,22 @@ describe('event guards are visible, not silent', () => {
     expect(s.screen).toBe('map');
   });
 });
+
+describe('targeting survives deaths', () => {
+  it('when an earlier enemy dies, the selected enemy stays selected', () => {
+    let s = inRun();
+    s = reduce(s, { type: 'chooseNode', id: reachableIds(s.run!.map)[0] });
+    const c = s.combat!;
+    c.enemies = [structuredClone(c.enemies[0]), structuredClone(c.enemies[0]), structuredClone(c.enemies[0])].map((e, i) => ({ ...e, uid: `e${i}`, hp: 50 }));
+    c.enemies[0].hp = 1;
+    s = reduce(s, { type: 'setTarget', index: 2 });
+    c.energy = 3;
+    s.combat!.enemies[0].salt = 0;
+    // kill enemy 0 with an AoE
+    s.combat!.hand.push({ uid: 'bellx', id: 'bell', up: false });
+    s.combat!.energy = 3;
+    s = reduce(s, { type: 'playCard', uid: 'bellx' });
+    expect(s.combat!.enemies.length).toBe(2);
+    expect(s.combat!.enemies[s.target].uid).toBe('e2');
+  });
+});

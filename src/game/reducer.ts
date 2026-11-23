@@ -559,8 +559,14 @@ function advanceTutorial(state: GameState, played: boolean): void {
 export function reduce(state: GameState, action: Action): GameState {
   const next = structuredClone(state) as GameState;
   const rng = new Rng(next.rngS >>> 0);
+  const targetUid = state.combat?.enemies[state.target]?.uid;
   apply(next, action, rng);
   next.rngS = rng.s;
+  // Enemies are removed from the array when they die: keep the same enemy targeted, or fall back to the first.
+  if (next.combat) {
+    const keep = targetUid ? next.combat.enemies.findIndex((e) => e.uid === targetUid) : -1;
+    if (action.type !== 'setTarget') next.target = keep >= 0 ? keep : next.target < next.combat.enemies.length ? next.target : 0;
+  }
   return next;
 }
 
