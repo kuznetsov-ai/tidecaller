@@ -213,3 +213,12 @@ describe('Argument on the Dock with no coins', () => {
     expect(s.run!.deck.some((c) => c.uid === 'c1')).toBe(true);
   });
 });
+
+describe('chart 1 unlock is announced (review P2-6)', () => {
+  it('beating the act-1 boss and then dying reports chart1', () => {
+    let s = inRun();
+    s.meta.maxChart = 1; // raised by the boss kill mid-run
+    s = reduce(s, { type: 'abandon' });
+    expect(s.outcome!.newUnlocks).toContain('chart1');
+  });
+});

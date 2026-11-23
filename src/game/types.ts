@@ -226,6 +226,8 @@ export interface GameMap {
 
 export interface RunState {
   seed: number;
+  /** meta.maxChart when the voyage began, so a chart opened mid-run is announced at its end. */
+  chartAtStart?: number;
   character: CharacterId;
   chart: number;
   act: 1 | 2 | 3;

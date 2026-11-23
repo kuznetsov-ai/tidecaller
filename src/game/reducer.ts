@@ -74,6 +74,7 @@ export function createRun(meta: MetaState, character: CharacterId, chart: number
   see(meta, 'relics', ch.relic);
   return {
     seed,
+    chartAtStart: meta.maxChart,
     character,
     chart: Math.max(0, Math.min(chart, meta.maxChart)),
     act: 1,
@@ -296,7 +297,7 @@ function deathCopy(source: string, bossHint: string): { ru: string; en: string }
 function finishRun(state: GameState, victory: boolean, source: string): void {
   const run = state.run;
   if (!run) return;
-  const before = state.meta.maxChart;
+  const before = run.chartAtStart ?? state.meta.maxChart;
   // The chart bonus is earned by sailing: nothing for a voyage abandoned before any node, full after 3.
   const chartBonus = run.chart * 2 * Math.min(run.floors, 3);
   const marks = run.floors * 2 + run.elitesKilled * 7 + run.bossesKilled * 14 + (victory ? 46 : 0) + chartBonus;
