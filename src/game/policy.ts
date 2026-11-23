@@ -232,7 +232,7 @@ function shopAction(state: GameState): Action {
   const run = state.run!;
   const shop = state.shop!;
   const curse = run.deck.find((c) => CARDS[c.id]?.rarity === 'curse');
-  if (curse && run.gold >= run.removeCost) return { type: 'shopRemove', uid: curse.uid };
+  if (curse && run.gold >= Math.max(1, Math.round(run.removeCost * (run.relics.includes('merchant_teeth') ? 0.75 : 1)))) return { type: 'shopRemove', uid: curse.uid };
   const relic = shop.relics
     .filter((r) => !r.sold && r.price <= run.gold - 20)
     .sort((a, b) => (RELIC_SCORE[b.id] ?? 0) - (RELIC_SCORE[a.id] ?? 0))[0];

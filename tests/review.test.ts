@@ -176,3 +176,16 @@ describe('new voyage over a parked one (P1-7)', () => {
     expect(s.screen).toBe('map');
   });
 });
+
+describe('shop removal with Merchant’s Teeth', () => {
+  it('charges 25% less', () => {
+    let s = inRun();
+    s.screen = 'shop';
+    s.shop = { cards: [], relics: [], phials: [] } as never;
+    s.run!.relics.push('merchant_teeth');
+    s.run!.gold = 100;
+    s.run!.deck.push({ uid: 'cz', id: 'barnacle', up: false });
+    s = reduce(s, { type: 'shopRemove', uid: 'cz' });
+    expect(s.run!.gold).toBe(100 - 54);
+  });
+});

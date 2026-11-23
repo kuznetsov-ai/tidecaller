@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { CARDS } from '../game/cards';
 import { EVENTS } from '../game/events';
 import { PHIALS } from '../game/phials';
-import { eventChoiceBlock, pickerCards } from '../game/reducer';
+import { eventChoiceBlock, pickerCards, removePrice } from '../game/reducer';
 import { RELICS } from '../game/relics';
 import type { CardInst } from '../game/types';
 import { dispatch, useGame } from '../state';
@@ -216,8 +216,8 @@ export function ShopScreen() {
             ))}
           </div>
           <div className="row-actions">
-            <button type="button" data-testid="shop-remove" onClick={() => setRemoving(true)} disabled={run.gold < run.removeCost}>
-              {tx(lang, 'Вырезать карту', 'Cut a card')} · {run.removeCost}
+            <button type="button" data-testid="shop-remove" onClick={() => setRemoving(true)} disabled={run.gold < removePrice(run)}>
+              {tx(lang, 'Вырезать карту', 'Cut a card')} · {removePrice(run)}
             </button>
             <button type="button" className="ghost" data-testid="shop-leave" onClick={() => dispatch({ type: 'shopLeave' })}>
               {tx(lang, 'Уйти', 'Leave')}

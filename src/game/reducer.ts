@@ -146,6 +146,10 @@ function addCard(run: RunState, id: string, rng: Rng): void {
   run.deck.push({ uid: newUid(rng), id, up: false });
 }
 
+export function removePrice(run: RunState): number {
+  return priceOf(run, run.removeCost);
+}
+
 function priceOf(run: RunState, base: number): number {
   const mult = run.relics.includes('merchant_teeth') ? 0.75 : 1;
   return Math.max(1, Math.round(base * mult));
@@ -878,8 +882,8 @@ function apply(state: GameState, action: Action, rng: Rng): void {
     }
     case 'shopRemove': {
       const run = state.run;
-      if (!run || !state.shop || run.gold < run.removeCost || !canRemove(run, action.uid)) return;
-      run.gold -= run.removeCost;
+      if (!run || !state.shop || run.gold < removePrice(run) || !canRemove(run, action.uid)) return;
+      run.gold -= removePrice(run);
       run.removeCost += 25;
       run.deck = run.deck.filter((c) => c.uid !== action.uid);
       return;
