@@ -7,3 +7,5 @@ test-results
 dist
 build
 out
+qa/.build
+qa/fixtures.json
