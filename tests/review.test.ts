@@ -222,3 +222,24 @@ describe('chart 1 unlock is announced (review P2-6)', () => {
     expect(s.outcome!.newUnlocks).toContain('chart1');
   });
 });
+
+describe('reducer input validation (review P2-4, P2-22)', () => {
+  it('rejects bad ids and indexes from the console hook', () => {
+    let s = inRun();
+    s.screen = 'reward';
+    s.reward = { kind: 'combat', gold: 0, heal: 0, cards: ['reed_strike'], eliteRelic: null, bossRelics: null, cardTaken: false, relicTaken: false } as never;
+    const n = s.run!.deck.length;
+    s = reduce(s, { type: 'pickCard', id: 'leviathan_call' } as never);
+    expect(s.run!.deck.length).toBe(n);
+    expect(s.reward!.cardTaken).toBe(false);
+    s.screen = 'event';
+    s.eventId = 'wreck';
+    s = reduce(s, { type: 'eventChoose', index: 9 });
+    expect(s.eventId).toBe('wreck');
+    let t = inRun();
+    t.screen = 'select';
+    t.run = null;
+    t = reduce(t, { type: 'startRun', character: 'nobody', chart: 0 } as never);
+    expect(t.run).toBe(null);
+  });
+});

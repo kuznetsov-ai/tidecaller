@@ -444,6 +444,8 @@ function eventChoose(state: GameState, index: number, rng: Rng): void {
   const run = state.run;
   const id = state.eventId;
   if (!run || !id || state.picker) return;
+  const ev = EVENT_LIST.find((e) => e.id === id);
+  if (!ev || !Number.isInteger(index) || index < 0 || index >= ev.choices.length) return;
   if (eventChoiceBlock(state, index)) return;
   const done = () => {
     state.eventId = null;
@@ -668,6 +670,7 @@ function apply(state: GameState, action: Action, rng: Rng): void {
       return;
     case 'startRun': {
       if (state.screen !== 'select' && state.storyId !== 'afterTutorial') return;
+      if (!CHARACTERS[action.character] || !Number.isInteger(action.chart) || action.chart < 0) return;
       if (action.character === 'keel' && !state.meta.unlocks.keel) return;
       if (action.character === 'moth' && !state.meta.unlocks.moth) return;
       if (action.chart > state.meta.maxChart) return;
@@ -734,7 +737,7 @@ function apply(state: GameState, action: Action, rng: Rng): void {
       return;
     }
     case 'tideChoice': {
-      if (!state.combat || !state.pending) return;
+      if (!state.combat || !state.pending || (action.dir !== 1 && action.dir !== -1)) return;
       const uid = state.pending.uid;
       const result = playCard(state.combat, uid, rng, { target: state.target, tideDir: action.dir });
       state.pending = null;
@@ -746,6 +749,7 @@ function apply(state: GameState, action: Action, rng: Rng): void {
       state.pending = null;
       return;
     case 'setTarget':
+      if (!state.combat || !Number.isInteger(action.index) || action.index < 0 || action.index >= state.combat.enemies.length) return;
       state.target = action.index;
       return;
     case 'endTurn': {
@@ -799,6 +803,7 @@ function apply(state: GameState, action: Action, rng: Rng): void {
     }
     case 'pickCard': {
       if (!state.reward || !state.run || state.reward.cardTaken) return;
+      if (action.id && !state.reward.cards.includes(action.id)) return;
       if (action.id) addCard(state.run, action.id, rng);
       state.reward.cardTaken = true;
       return;
