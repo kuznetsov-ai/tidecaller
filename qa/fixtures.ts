@@ -186,6 +186,12 @@ export function buildFixtures(): Fixture[] {
   }
   add('map-act3-before-boss', a3);
   add('pause-on-map', mid, [{ key: 'Escape' }]);
+  add('pause-abandon-armed', mid, [{ key: 'Escape' }, { click: '[data-testid=abandon]' }]);
+  const parked = clone(mid);
+  parked.hold = 'map';
+  parked.screen = 'select';
+  add('select-parked-run', parked);
+  add('select-parked-run-armed', parked, [{ click: '[data-testid=cast-off]' }]);
 
   // ---------- combat ----------
   add('combat-basic', combatState(['gullthief', 'kelppup']));
@@ -241,6 +247,7 @@ export function buildFixtures(): Fixture[] {
     return s;
   };
   add('reward-combat', rewardBase('combat'));
+  add('reward-pause-menu', rewardBase('combat'), [{ click: '[data-testid=run-menu]' }]);
   add('reward-elite-relic', rewardBase('elite'));
   add('reward-boss-relics', rewardBase('boss'));
   const taken = rewardBase('combat');
