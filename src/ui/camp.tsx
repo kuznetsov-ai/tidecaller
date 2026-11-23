@@ -8,7 +8,10 @@ import type { CardInst } from '../game/types';
 import { dispatch, useGame } from '../state';
 import { tr, tx } from './tx';
 import { CoachMarks } from './hints';
+import { RunMenuButton } from './shell';
 import { CardFace, HudStats, RelicRow } from './widgets';
+
+let lastStoryAck = 0;
 
 export function StoryScreen() {
   const state = useGame();
@@ -17,10 +20,16 @@ export function StoryScreen() {
   const copy = STORIES[id ?? 'act1'] ?? STORIES.act1;
   return (
     <section className="screen story" data-testid="story">
+      <RunMenuButton lang={lang} />
       <p className="kicker">{tx(lang, 'Зов прилива', 'TIDECALLER')}</p>
       <h1>{tr(copy.title, lang)}</h1>
       <p className="prose">{tr(copy.body, lang)}</p>
-      <button type="button" data-testid="ack-story" onClick={() => dispatch({ type: 'ackStory' })}>
+      <button type="button" data-testid="ack-story" onClick={() => {
+          // A double click must not skip the next story page.
+          if (Date.now() - lastStoryAck < 450) return;
+          lastStoryAck = Date.now();
+          dispatch({ type: 'ackStory' });
+        }}>
         {tr(copy.button, lang)}
       </button>
     </section>
@@ -70,6 +79,7 @@ export function RewardScreen() {
   if (!reward || !run) return null;
   return (
     <section className="screen reward" data-testid="reward">
+      <RunMenuButton lang={lang} />
       <p className="kicker">{tx(lang, 'После боя', 'After the fight')}</p>
       <h1>
         +{reward.gold} {tx(lang, 'монет', 'coins')}
@@ -129,6 +139,7 @@ export function RestScreen() {
   const ups = run.deck.filter((c) => CARDS[c.id]?.up && !c.up && CARDS[c.id].rarity !== 'curse');
   return (
     <section className="screen rest" data-testid="rest">
+      <RunMenuButton lang={lang} />
       <p className="kicker">{tx(lang, 'Тихая стоянка', 'A quiet berth')}</p>
       <h1>{tx(lang, 'Можно сделать одно', 'You can do one thing')}</h1>
       {!mode && (
@@ -178,6 +189,7 @@ export function ShopScreen() {
   if (!run || !shop) return null;
   return (
     <section className="screen shop" data-testid="shop">
+      <RunMenuButton lang={lang} />
       <header className="topbar">
         <div>
           <p className="kicker">{tx(lang, 'Лавка', 'Shop')}</p>
@@ -249,6 +261,7 @@ export function EventScreen() {
   if (!event || !run) return null;
   return (
     <section className="screen event" data-testid="event">
+      <RunMenuButton lang={lang} />
       <p className="kicker">{tx(lang, 'На воде', 'On the water')}</p>
       <h1>{tr(event.title, lang)}</h1>
       <p className="prose">{tr(event.body, lang)}</p>
