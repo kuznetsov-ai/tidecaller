@@ -51,7 +51,7 @@ export function projectedTide(combat: CombatState): number {
 
 export function previewIntents(enemy: EnemyInst, combat: CombatState): ResolvedIntent[] {
   if (enemy.hp <= 0) return [];
-  // A freshly summoned enemy sits out the next enemy phase, so it has nothing to show.
+  // Summoned this enemy phase: it acts from the next one (its intent appears on your turn).
   if (enemy.summoned) return [];
   // During the player's turn, show what the enemy will do on the tide it will actually see.
   const view = combat.phase === 'player' ? { ...combat, tide: projectedTide(combat) } : combat;
@@ -85,6 +85,10 @@ export function reassemble(combat: CombatState): CardInst[] {
   return all.filter((c) => !CARDS[c.id]?.token).map((c) => ({ uid: c.uid, id: c.id, up: c.up }));
 }
 
+function chartHpMult(chart: number): number {
+  return chart === 0 ? 1 : chart === 1 ? 1.16 : 1.32;
+}
+
 export function startCombat(
   run: RunState,
   defIds: string[],
@@ -93,7 +97,7 @@ export function startCombat(
 ): CombatState {
   const chart = opt.tutorial ? 0 : run.chart;
   const rowBonus = opt.tutorial || opt.fightKind === 'boss' ? 0 : (opt.row ?? 0) * 0.04;
-  const hpMult = (chart === 0 ? 1 : chart === 1 ? 1.16 : 1.32) * (1 + rowBonus);
+  const hpMult = chartHpMult(chart) * (1 + rowBonus);
   const tide = clampTide(opt.tutorial ? 4 : run.nextTide ?? opt.startTide);
   run.nextTide = null;
   const combat: CombatState = {
@@ -195,6 +199,7 @@ function drawCards(combat: CombatState, n: number, rng: Rng, fx: Fx[]): void {
 
 function beginPlayerTurn(combat: CombatState, rng: Rng, fx: Fx[]): void {
   combat.turn += 1;
+  for (const e of combat.enemies) e.summoned = false;
   if (combat.retainCap > 0) combat.player.block = Math.min(combat.player.block, combat.retainCap);
   else combat.player.block = 0;
   combat.retainCap = 0;
@@ -583,7 +588,7 @@ function applyIntent(combat: CombatState, enemy: EnemyInst, intent: ResolvedInte
     return;
   }
   if (intent.kind === 'summon' && intent.id) {
-    const spawned = spawn(intent.id, rng, 1, 0);
+    const spawned = spawn(intent.id, rng, chartHpMult(combat.chart), combat.chart);
     spawned.summoned = true;
     combat.enemies.push(spawned);
     fx.push({ t: 'log', code: 'summon', id: intent.id });
@@ -654,10 +659,6 @@ export function endTurn(combat: CombatState, rng: Rng): Fx[] {
   for (const uid of order) {
     const enemy = combat.enemies.find((e) => e.uid === uid);
     if (!enemy || enemy.hp <= 0) continue;
-    if (enemy.summoned) {
-      enemy.summoned = false;
-      continue;
-    }
     // Like the player's, an enemy's block only lasts until its own next action.
     enemy.block = 0;
     const intents = previewIntents(enemy, combat);

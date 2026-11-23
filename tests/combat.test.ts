@@ -468,13 +468,15 @@ describe('enemies and intents', () => {
     endTurn(c, rng());
     expect(c.enemies.filter((e) => e.defId === 'kelp_minion').length).toBe(1);
   });
-  it('a freshly summoned lash shows no intent it will not perform', () => {
+  it('a summoned lash shows its intent on the next player turn and performs it', () => {
     const c = mkCombat(['kelp_warden'], { tide: 6 });
     c.player.hp = c.player.maxHp = 999;
     c.hand = [];
     endTurn(c, rng());
     const lash = c.enemies.find((e) => e.defId === 'kelp_minion')!;
+    expect(lash.summoned).toBe(false);
     const shown = previewIntents(lash, c).filter((i) => i.kind === 'attack').reduce((a, i) => a + i.n, 0);
+    expect(shown).toBeGreaterThan(0);
     const hp = c.player.hp;
     c.player.block = 0;
     c.hand = [];

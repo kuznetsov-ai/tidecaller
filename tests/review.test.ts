@@ -21,3 +21,17 @@ describe('maximus review fixes', () => {
     expect(c.enemies[0].block).toBe(6);
   });
 });
+
+describe('summons (P1-5)', () => {
+  it('a lash summoned on chart 2 gets the chart hp multiplier', () => {
+    const c = mkCombat(['kelp_warden'], { tide: 6 });
+    c.chart = 2;
+    c.player.hp = c.player.maxHp = 999;
+    c.hand = [];
+    c.enemies[0].pi = 0;
+    endTurn(c, rng());
+    const lash = c.enemies.find((e) => e.defId === 'kelp_minion')!;
+    expect(lash).toBeTruthy();
+    expect(lash.maxHp).toBeGreaterThan(14);
+  });
+});
