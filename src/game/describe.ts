@@ -1,5 +1,5 @@
 import { CARDS, effectsOf } from './cards';
-import { affinityOn } from './tide';
+import { affinityOn, clampTide } from './tide';
 import type { Affinity, CardDef, Effect, Lang } from './types';
 
 export interface Mods {
@@ -7,6 +7,8 @@ export interface Mods {
   strength?: number;
   weak?: number;
   choir?: boolean;
+  /** Twin Hooks still armed: the first attack line gets +4. */
+  twin?: boolean;
 }
 
 function nOf(
@@ -27,6 +29,7 @@ function nOf(
   if (effect.op === 'damage') {
     shown += mods?.strength ?? 0;
     if ((mods?.weak ?? 0) > 0) shown = Math.floor(shown * 0.75);
+    if (mods?.twin) shown += 4;
   }
   if (effect.op === 'salt' && mods?.choir) shown += 1;
   return { shown: Math.max(0, shown), printed, boosted };
@@ -97,7 +100,7 @@ function line(effect: Effect, lang: Lang, affinity: Affinity, mods?: Mods): stri
 
   if (effect.op === 'damage' && effect.timesTide) {
     const shown = mods?.tide != null ? nOf(effect, affinity, mods).shown : null;
-    const extra = (mods?.strength ?? 0) !== 0 || (mods?.weak ?? 0) > 0;
+    const extra = (mods?.strength ?? 0) !== 0 || (mods?.weak ?? 0) > 0 || !!mods?.twin;
     if (shown != null && extra) return ru ? `Нанести ${shown} урона.` : `Deal ${shown} damage.`;
     return ru ? `Нанести урон, равный приливу × ${effect.timesTide}.` : `Deal damage equal to tide × ${effect.timesTide}.`;
   }
@@ -168,14 +171,35 @@ export function cardLines(def: CardDef, upgraded: boolean, lang: Lang, mods?: Mo
         : 'Unplayable. Exhausts at the end of the turn.',
     ];
   }
-  const lines = effectsOf(def, upgraded)
-    .map((e) => line(e, lang, def.affinity, mods))
-    .filter(Boolean);
+  // Effects resolve in order, so a card that moves the tide first is previewed on the tide it moves to.
+  let m = mods ? { ...mods } : undefined;
+  const lines: string[] = [];
+  for (const e of effectsOf(def, upgraded)) {
+    const text = line(e, lang, def.affinity, m);
+    if (text) lines.push(text);
+    if (m && m.tide != null) {
+      if (e.op === 'tide') m = { ...m, tide: clampTide(m.tide + e.d) };
+      else if (e.op === 'tideSet') m = { ...m, tide: e.v };
+    }
+    if (m?.twin && (e.op === 'damage' || (e.op === 'conditional' && [...e.effects, ...(e.else ?? [])].some((x) => x.op === 'damage')))) {
+      m = { ...m, twin: false };
+    }
+  }
   if (def.endTurn?.length) {
     const end = def.endTurn.map((e) => line(e, lang, def.affinity, mods)).join(' ');
     lines.push(lang === 'ru' ? `В конце хода, если в руке: ${end}` : `At end of turn, if in hand: ${end}`);
   }
   return lines;
+}
+
+/** Tide the card's own leading tide moves leave behind (what its later numbers resolve on). */
+export function tideAfterOwnMoves(def: CardDef, upgraded: boolean, tide: number): number {
+  let t = tide;
+  for (const e of effectsOf(def, upgraded)) {
+    if (e.op === 'tide') t = clampTide(t + e.d);
+    else if (e.op === 'tideSet') t = e.v;
+  }
+  return t;
 }
 
 export function cardLinesById(id: string, upgraded: boolean, lang: Lang, mods?: Mods): string[] {

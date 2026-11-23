@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { CARDS } from '../game/cards';
 import { cardCost, debtActive, previewIntents, projectedEdge, projectedTide } from '../game/combat';
-import { cardLines } from '../game/describe';
+import { cardLines, tideAfterOwnMoves } from '../game/describe';
 import { ENEMIES } from '../game/enemies';
 import { RELICS } from '../game/relics';
 import { affinityOn, bandTags, primaryBand, willDrift } from '../game/tide';
@@ -69,12 +69,15 @@ export function CardFace({
         strength: combat.player.strength,
         weak: combat.player.weak,
         choir: combat.relics.includes('choir_shell'),
+        twin: combat.relics.includes('twin_hooks') && !combat.firstAttack,
       }
     : undefined;
   const lines = cardLines(def, !!upgraded, lang, mods);
   const base = def.cost;
   const cost = combat ? cardCost({ uid: '', id, up: !!upgraded }, combat) : base;
-  const lit = !!combat && affinityOn(def.affinity, combat.tide);
+  const lit =
+    !!combat &&
+    (affinityOn(def.affinity, combat.tide) || affinityOn(def.affinity, tideAfterOwnMoves(def, !!upgraded, combat.tide)));
   const Tag = onClick ? 'button' : 'article';
   return (
     <Tag
