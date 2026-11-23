@@ -7,6 +7,7 @@ import type { CharacterId, Lang } from '../game/types';
 import { dispatch, useGame } from '../state';
 import { Creature } from './art';
 import { tr, tx } from './tx';
+import { CoachMarks, hints, useHints } from './hints';
 import { CardFace } from './widgets';
 
 export function MenuScreen() {
@@ -142,6 +143,7 @@ export function SelectScreen() {
           {tx(lang, 'Назад', 'Back')}
         </button>
       </div>
+      <CoachMarks tour="select" lang={lang} />
     </section>
   );
 }
@@ -312,8 +314,13 @@ export function SettingsBits() {
   const state = useGame();
   const lang = state.meta.settings.lang;
   const [armed, setArmed] = useState(false);
+  const tips = useHints();
+  const tipsOn = !tips.off && tips.seen.length === 0;
   return (
     <div className="settings">
+      <button type="button" className="ghost" data-testid="tips-again" disabled={tipsOn} onClick={() => hints.reset()}>
+        {tipsOn ? tx(lang, 'Подсказки включены', 'Tips are on') : tx(lang, 'Показать подсказки снова', 'Show tips again')}
+      </button>
       <label>
         {tx(lang, 'Громкость', 'Volume')}
         <input

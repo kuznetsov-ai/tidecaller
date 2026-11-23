@@ -20,6 +20,8 @@ export interface Fixture {
   state: GameState;
   /** optional UI steps performed before the screenshot */
   steps?: Step[];
+  /** leave first-visit coach marks on (all other fixtures run with tips off) */
+  hints?: boolean;
 }
 export type Step =
   | { click: string; nth?: number }
@@ -316,6 +318,21 @@ export function buildFixtures(): Fixture[] {
   win.reward!.relicTaken = true;
   add('victory', reduce(win, { type: 'leaveReward' }));
 
+  // ---------- onboarding coach marks ----------
+  const tour = (name: string, state: GameState, n: number) => {
+    for (let k = 1; k <= n; k++) {
+      const steps: Step[] = [{ wait: 450 }];
+      for (let j = 1; j < k; j++) steps.push({ click: '[data-testid=coach-next]' }, { wait: 450 });
+      F.push({ name: `hint-${name}-${k}`, state: clone(state), steps, hints: true });
+    }
+  };
+  tour('select', selAll, 3);
+  tour('map', runState('brine', 104), 3);
+  tour('combat', combatState(['gullthief', 'kelppup']), 6);
+  tour('combat-boss', combatState(['kelp_warden', 'kelp_minion', 'kelp_minion'], { kind: 'boss', tide: 6 }), 6);
+  tour('reward', rewardBase('combat'), 2);
+  tour('shop', shopOpen, 3);
+  tour('rest', rest, 1);
   return F;
 }
 

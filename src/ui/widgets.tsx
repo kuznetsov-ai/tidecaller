@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react';
 import { CARDS } from '../game/cards';
 import { cardCost, debtActive, previewIntents } from '../game/combat';
 import { cardLines } from '../game/describe';
@@ -17,6 +18,7 @@ export function CardFace({
   disabled,
   hot,
   dim,
+  onDragPlay,
 }: {
   id: string;
   upgraded?: boolean;
@@ -26,9 +28,41 @@ export function CardFace({
   disabled?: boolean;
   hot?: boolean;
   dim?: boolean;
+  /** drag the card upward past a threshold to play it (touch and mouse) */
+  onDragPlay?: () => void;
 }) {
+  const drag = useRef<{ x: number; y: number } | null>(null);
+  const swallow = useRef(false);
+  const [lift, setLift] = useState(0);
   const def = CARDS[id];
   if (!def) return null;
+  const canDrag = !!onDragPlay && !disabled;
+  const dragProps = canDrag
+    ? {
+        onPointerDown: (e: React.PointerEvent<HTMLElement>) => {
+          drag.current = { x: e.clientX, y: e.clientY };
+          e.currentTarget.setPointerCapture?.(e.pointerId);
+        },
+        onPointerMove: (e: React.PointerEvent<HTMLElement>) => {
+          if (!drag.current) return;
+          const dy = e.clientY - drag.current.y;
+          if (Math.abs(e.clientX - drag.current.x) < 40) setLift(Math.max(-90, Math.min(0, dy)));
+        },
+        onPointerUp: (e: React.PointerEvent<HTMLElement>) => {
+          const start = drag.current;
+          drag.current = null;
+          setLift(0);
+          if (start && start.y - e.clientY > 60) {
+            swallow.current = true; // the click that follows the drop must not play it twice
+            onDragPlay!();
+          }
+        },
+        onPointerCancel: () => {
+          drag.current = null;
+          setLift(0);
+        },
+      }
+    : {};
   const mods = combat
     ? {
         tide: combat.tide,
@@ -46,7 +80,20 @@ export function CardFace({
     <Tag
       type={onClick ? 'button' : undefined}
       className={`card aff-${def.affinity}${lit ? ' lit' : ''}${upgraded ? ' up' : ''}${def.rarity === 'curse' ? ' curse' : ''}${hot ? ' hot' : ''}${dim ? ' dim' : ''}`}
-      onClick={disabled ? undefined : onClick}
+      onClick={
+        disabled
+          ? undefined
+          : () => {
+              if (swallow.current) {
+                swallow.current = false;
+                return;
+              }
+              onClick?.();
+            }
+      }
+      {...dragProps}
+      style={lift ? { transform: `translateY(${lift}px)` } : undefined}
+      data-drag={canDrag ? '1' : undefined}
       disabled={onClick ? disabled : undefined}
       data-testid="card"
       data-card={id}

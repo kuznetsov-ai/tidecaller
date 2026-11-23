@@ -40,7 +40,13 @@ for (const vp of VIEWPORTS) {
         const state = structuredClone(fx.state);
         state.meta.settings.lang = lang;
         const before = errors.length;
-        await page.evaluate((s) => localStorage.setItem('tidecaller-save-v1', s), JSON.stringify(state));
+        await page.evaluate(
+          ([s, h]) => {
+            localStorage.setItem('tidecaller-save-v1', s);
+            localStorage.setItem('tidecaller-hints-v1', h);
+          },
+          [JSON.stringify(state), JSON.stringify(fx.hints ? { off: false, seen: [] } : { off: true, seen: [] })],
+        );
         await page.reload();
         await page.waitForSelector('[data-testid=app]');
         await page.evaluate(() => document.fonts.ready.then(() => 1));
@@ -50,6 +56,11 @@ for (const vp of VIEWPORTS) {
           else await page.waitForTimeout(step.wait);
         }
         await page.waitForTimeout(120);
+        if (fx.hints) {
+          // the bubble must exist and the screenshot must show it
+          await page.waitForSelector('[data-testid=coach-bubble]');
+          await page.locator('[data-testid=coach-bubble]').scrollIntoViewIfNeeded();
+        }
         const screen = await page.getByTestId('app').getAttribute('data-screen');
         await page.screenshot({ path: path.join(dir, `${fx.name}.png`), fullPage: true, animations: 'disabled' });
         const issues = await page.evaluate(LAYOUT_SRC);

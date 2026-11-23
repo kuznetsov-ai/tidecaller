@@ -7,6 +7,7 @@ import { RELICS } from '../game/relics';
 import type { CardInst } from '../game/types';
 import { dispatch, useGame } from '../state';
 import { tr, tx } from './tx';
+import { CoachMarks } from './hints';
 import { CardFace, HudStats, RelicRow } from './widgets';
 
 export function StoryScreen() {
@@ -113,6 +114,7 @@ export function RewardScreen() {
       <button type="button" data-testid="leave-reward" disabled={!reward.cardTaken || !reward.relicTaken} onClick={() => dispatch({ type: 'leaveReward' })}>
         {tx(lang, 'Дальше', 'Onward')}
       </button>
+      <CoachMarks tour="reward" lang={lang} />
     </section>
   );
 }
@@ -162,6 +164,7 @@ export function RestScreen() {
           </button>
         </div>
       )}
+      <CoachMarks tour="rest" lang={lang} enabled={!mode} />
     </section>
   );
 }
@@ -213,7 +216,7 @@ export function ShopScreen() {
             ))}
           </div>
           <div className="row-actions">
-            <button type="button" onClick={() => setRemoving(true)} disabled={run.gold < run.removeCost}>
+            <button type="button" data-testid="shop-remove" onClick={() => setRemoving(true)} disabled={run.gold < run.removeCost}>
               {tx(lang, 'Вырезать карту', 'Cut a card')} · {run.removeCost}
             </button>
             <button type="button" className="ghost" data-testid="shop-leave" onClick={() => dispatch({ type: 'shopLeave' })}>
@@ -233,6 +236,7 @@ export function ShopScreen() {
           onCancel={() => setRemoving(false)}
         />
       )}
+      <CoachMarks tour="shop" lang={lang} enabled={!removing} />
     </section>
   );
 }

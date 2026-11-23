@@ -114,3 +114,27 @@ function cardCheck() {
   return issues;
 }
 
+
+function hintCheck() {
+  const issues = [];
+  const b = document.querySelector('.coach-bubble');
+  if (!b) return issues;
+  const r = b.getBoundingClientRect();
+  if (r.left < 0 || r.right > window.innerWidth + 1) issues.push({ type: 'hint-offscreen', detail: `bubble x=${Math.round(r.left)}..${Math.round(r.right)}` });
+  for (const el of document.querySelectorAll('button, a[href], input, select, [role=button], .card, .relic, .node')) {
+    if (b.contains(el)) continue;
+    const e = el.getBoundingClientRect();
+    if (e.width < 1 || e.height < 1) continue;
+    const w = Math.min(r.right, e.right) - Math.max(r.left, e.left);
+    const h = Math.min(r.bottom, e.bottom) - Math.max(r.top, e.top);
+    if (w > 0 && h > 0) issues.push({ type: 'hint-overlap', detail: `bubble covers ${el.tagName.toLowerCase()}.${String(el.className).split(' ')[0]} "${(el.innerText || '').trim().slice(0, 30)}"` });
+  }
+  const ring = document.querySelector('.coach-ring');
+  if (ring) {
+    const q = ring.getBoundingClientRect();
+    const w = Math.min(r.right, q.right) - Math.max(r.left, q.left);
+    const h = Math.min(r.bottom, q.bottom) - Math.max(r.top, q.top);
+    if (w > 0 && h > 0) issues.push({ type: 'hint-overlap', detail: 'bubble covers the highlighted element' });
+  }
+  return issues;
+}

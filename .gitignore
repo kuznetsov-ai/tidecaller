@@ -9,3 +9,5 @@ build
 out
 qa/.build
 qa/fixtures.json
+qa/.build2
+*.tsbuildinfo

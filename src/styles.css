@@ -290,3 +290,22 @@ h1, h2, .card strong, .enemy strong, .choices strong { overflow-wrap: break-word
   .relics { max-width: 100%; }
 }
 .choices small.why { color: var(--coral); }
+
+/* onboarding coach marks */
+.coach-ring {
+  position: absolute; z-index: 30; pointer-events: none; border-radius: 16px;
+  border: 2px solid var(--gold); box-shadow: 0 0 0 4px rgba(226, 177, 90, 0.18), 0 0 24px rgba(226, 177, 90, 0.35);
+  animation: ring 1.6s ease-in-out infinite;
+}
+@keyframes ring { 50% { box-shadow: 0 0 0 7px rgba(226, 177, 90, 0.08), 0 0 30px rgba(226, 177, 90, 0.45); } }
+.coach-bubble {
+  position: absolute; z-index: 31; width: min(340px, calc(100vw - 16px));
+  background: #13292e; border: 1px solid var(--gold); border-radius: 16px; padding: 12px 14px;
+  box-shadow: var(--shadow); font-size: 14px; line-height: 1.45; color: var(--bone);
+}
+.coach-bubble p { margin: 0 0 10px; }
+.coach-bubble .coach-count { color: var(--gold); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 6px; }
+.coach-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.coach-actions button { padding: 8px 12px; }
+.coach-next { background: var(--gold); color: #1c1712; font-weight: 700; }
+.hand .card[data-drag='1'] { touch-action: pan-x; }

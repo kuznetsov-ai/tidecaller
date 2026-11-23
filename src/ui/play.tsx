@@ -7,6 +7,7 @@ import { dispatch, useGame } from '../state';
 import { useContext } from 'react';
 import { PauseApi } from './shell';
 import { ACT_NAME, tr, tx } from './tx';
+import { CoachMarks } from './hints';
 import { CardFace, EnemyPlate, HudStats, RelicRow, TideGauge, debtNote } from './widgets';
 
 const TUTOR = [
@@ -161,6 +162,7 @@ export function CombatScreen() {
                 hot={playable && state.tutorialStep !== null && state.tutorialStep < 4}
                 dim={!playable}
                 onClick={() => dispatch({ type: 'playCard', uid: card.uid })}
+                onDragPlay={() => dispatch({ type: 'playCard', uid: card.uid })}
               />
             );
           })}
@@ -232,6 +234,7 @@ export function CombatScreen() {
           onClose={() => setPile(null)}
         />
       )}
+      <CoachMarks tour="combat" lang={lang} enabled={state.tutorialStep === null && combat.phase === 'player' && !state.pending && !pile} />
     </section>
   );
 }
@@ -313,7 +316,7 @@ export function MapScreen() {
         </div>
         <RelicRow ids={run.relics} lang={lang} />
         <HudStats hp={run.hp} maxHp={run.maxHp} gold={run.gold} lang={lang} />
-        <button type="button" className="ghost" onClick={() => setDeckOpen(true)}>
+        <button type="button" className="ghost" data-testid="deck-btn" onClick={() => setDeckOpen(true)}>
           {tx(lang, 'Колода', 'Deck')} {run.deck.length}
         </button>
         <button type="button" className="ghost" onClick={() => pause.toggle()}>
@@ -382,6 +385,7 @@ export function MapScreen() {
       {deckOpen && (
         <PileModal title={tx(lang, 'Колода рейса', 'Voyage deck')} cards={run.deck} lang={lang} onClose={() => setDeckOpen(false)} />
       )}
+      <CoachMarks tour="map" lang={lang} enabled={!deckOpen} />
     </section>
   );
 }
