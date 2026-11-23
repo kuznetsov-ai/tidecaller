@@ -50,6 +50,9 @@ test('first act is playable without console errors', async ({ page }) => {
   await expect(page.getByTestId('story')).toBeVisible();
   await page.screenshot({ path: `${shots}/04-after-cove.png` });
   await page.getByTestId('ack-story').click();
+  // the act-1 story page follows; read it like a player (a double click is ignored on purpose)
+  await expect(page.getByRole('heading', { name: 'Мелководье' })).toBeVisible();
+  await page.waitForTimeout(500);
   await page.getByTestId('ack-story').click();
   await expect(page.getByTestId('map')).toBeVisible();
   await page.screenshot({ path: `${shots}/05-map.png` });
