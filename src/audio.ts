@@ -5,15 +5,22 @@ let volume = 0.7;
 
 function context(): AudioContext | null {
   if (typeof window === 'undefined') return null;
-  if (!ctx) {
-    const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    ctx = new AC();
-    master = ctx.createGain();
-    master.gain.value = volume;
-    master.connect(ctx.destination);
+  try {
+    if (!ctx) {
+      const AC = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!AC) return null;
+      ctx = new AC();
+      master = ctx.createGain();
+      master.gain.value = volume;
+      master.connect(ctx.destination);
+    }
+    if (ctx.state === 'suspended') void ctx.resume().catch(() => undefined);
+    return ctx;
+  } catch {
+    ctx = null;
+    master = null;
+    return null;
   }
-  if (ctx.state === 'suspended') void ctx.resume();
-  return ctx;
 }
 
 export function setBusVolume(v: number): void {

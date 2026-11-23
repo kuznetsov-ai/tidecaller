@@ -959,13 +959,60 @@ function apply(state: GameState, action: Action, rng: Rng): void {
 }
 
 export function sanitize(state: GameState): GameState {
+  if (!state || typeof state !== 'object') return freshState();
   const next = structuredClone(state) as GameState;
-  if (!next.meta || next.meta.version !== 1) return freshState();
+  if (!next.meta || next.meta.version !== SAVE_VERSION) return freshState();
+  // Fill any missing meta parts from defaults instead of crashing on render.
+  const d = defaultMeta();
+  const m = next.meta;
+  next.meta = {
+    ...d,
+    ...m,
+    unlocks: { ...d.unlocks, ...(m.unlocks ?? {}), cards: Array.isArray(m.unlocks?.cards) ? m.unlocks.cards : [] },
+    stats: { ...d.stats, ...(m.stats ?? {}) },
+    seen: {
+      cards: Array.isArray(m.seen?.cards) ? m.seen.cards : [],
+      enemies: Array.isArray(m.seen?.enemies) ? m.seen.enemies : [],
+      relics: Array.isArray(m.seen?.relics) ? m.seen.relics : [],
+    },
+    settings: { ...d.settings, ...(m.settings ?? {}) },
+  };
+  if (typeof next.meta.marks !== 'number' || !Number.isFinite(next.meta.marks)) next.meta.marks = 0;
   next.fx = [];
-  const needsRun = ['map', 'event', 'shop', 'rest', 'reward', 'story', 'combat'].includes(next.screen);
-  if (needsRun && !next.run && next.screen !== 'combat') next.screen = 'menu';
-  if (next.screen === 'combat' && !next.combat) next.screen = next.run ? 'map' : 'menu';
-  if (!next.combatLog) next.combatLog = [];
+  if (!Array.isArray(next.combatLog)) next.combatLog = [];
   if (next.hold === undefined) next.hold = null;
+  if (typeof next.target !== 'number') next.target = 0;
+  for (const k of ['storyId', 'combat', 'reward', 'shop', 'eventId', 'pending', 'picker', 'outcome', 'tutorialStep'] as const) {
+    if (next[k] === undefined) (next as unknown as Record<string, unknown>)[k] = null;
+  }
+  const r = next.run;
+  const runOk =
+    !!r &&
+    !!CHARACTERS[r.character] &&
+    Array.isArray(r.deck) &&
+    Array.isArray(r.relics) &&
+    Array.isArray(r.phials) &&
+    !!r.map &&
+    Array.isArray(r.map.nodes) &&
+    typeof r.hp === 'number';
+  if (!runOk) {
+    next.run = null;
+    next.combat = null;
+    next.reward = null;
+    next.shop = null;
+    next.eventId = null;
+    next.picker = null;
+    next.pending = null;
+  }
+  if (next.combat && (!Array.isArray(next.combat.enemies) || !Array.isArray(next.combat.hand))) next.combat = null;
+  if (next.eventId && !EVENT_LIST.some((e) => e.id === next.eventId)) next.eventId = null;
+  const needsRun = ['map', 'event', 'shop', 'rest', 'reward', 'story', 'combat'].includes(next.screen);
+  if (needsRun && !next.run && !(next.screen === 'combat' && next.combat && next.tutorialStep !== null)) next.screen = 'menu';
+  if (next.screen === 'combat' && !next.combat) next.screen = next.run ? 'map' : 'menu';
+  if (next.screen === 'reward' && !next.reward) next.screen = next.run ? 'map' : 'menu';
+  if (next.screen === 'event' && !next.eventId) next.screen = next.run ? 'map' : 'menu';
+  if (next.screen === 'shop' && !next.shop) next.screen = next.run ? 'map' : 'menu';
+  if ((next.screen === 'victory' || next.screen === 'defeat') && !next.outcome) next.screen = 'menu';
+  if (next.screen === 'story' && !next.storyId) next.screen = next.run ? 'map' : 'menu';
   return next;
 }

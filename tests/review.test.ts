@@ -262,3 +262,30 @@ describe('relic edge cases (review P2-8, P2-9)', () => {
     expect(c.hand.length).toBe(5);
   });
 });
+
+import { freshState, sanitize } from '../src/game/reducer';
+
+describe('sanitize partial saves (review P2-15)', () => {
+  it('fills missing meta parts and drops a broken run', () => {
+    const s = freshState(3) as unknown as Record<string, unknown>;
+    const meta = (s.meta as Record<string, unknown>);
+    delete meta.seen;
+    delete meta.stats;
+    s.run = { character: 'brine', deck: [] }; // no map
+    s.screen = 'map';
+    const out = sanitize(s as never);
+    expect(out.meta.seen.cards).toEqual([]);
+    expect(out.meta.stats.runs).toBe(0);
+    expect(out.run).toBe(null);
+    expect(out.screen).toBe('menu');
+  });
+  it('a screen without its payload falls back to the map', () => {
+    const s = inRun();
+    s.screen = 'reward';
+    s.reward = null;
+    expect(sanitize(s).screen).toBe('map');
+    s.screen = 'event';
+    s.eventId = 'nope';
+    expect(sanitize(s).screen).toBe('map');
+  });
+});

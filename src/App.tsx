@@ -18,6 +18,7 @@ export default function App() {
   useEffect(() => {
     document.body.classList.toggle('reduced', state.meta.settings.reduced);
     document.documentElement.lang = lang;
+    document.title = tx(lang, 'Зов прилива — карточный рогалик', 'TIDECALLER — a tide deckbuilder');
   }, [state.meta.settings.reduced, lang]);
 
   useEffect(() => {
@@ -36,7 +37,10 @@ export default function App() {
         if (inRun) setPause((v) => !v);
         return;
       }
-      if (!state.combat || state.combat.phase !== 'player' || pause) return;
+      // Held keys must not chain turns, and nothing plays under an open modal (tide choice, pile, pause).
+      if (event.repeat) return;
+      if (!state.combat || state.combat.phase !== 'player' || pause || state.pending) return;
+      if (document.querySelector('.modal')) return;
       if (event.key === 'e' || event.key === 'E' || event.key === ' ') {
         event.preventDefault();
         dispatch({ type: 'endTurn' });
@@ -51,7 +55,7 @@ export default function App() {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [state.combat, state.screen, pause, inRun]);
+  }, [state.combat, state.pending, state.screen, pause, inRun]);
 
   const screen = (() => {
     switch (state.screen) {

@@ -17,7 +17,13 @@ import { setBusVolume, setPadTide, sfx, unlockAudio } from './audio';
 import { getState, subscribe } from './state';
 import './styles.css';
 
-window.addEventListener('pointerdown', () => unlockAudio());
+window.addEventListener('pointerdown', () => {
+  try {
+    unlockAudio();
+  } catch {
+    /* no WebAudio */
+  }
+});
 
 let prev = getState();
 setBusVolume(prev.meta.settings.volume);
@@ -50,18 +56,35 @@ class Guard extends Component<{ children: ReactNode }, { error: string | null }>
   }
   render() {
     if (this.state.error) {
+      let en = false;
+      try {
+        en = getState().meta.settings.lang === 'en';
+      } catch {
+        /* keep RU */
+      }
       return (
         <div className="screen story">
-          <h1>Зов прилива</h1>
-          <p className="prose">{this.state.error}</p>
+          <h1>{en ? 'TIDECALLER' : 'Зов прилива'}</h1>
+          <p className="prose">
+            {en
+              ? 'Something broke while drawing this screen. You can reset the save; a copy is kept in this browser.'
+              : 'Что-то сломалось при отрисовке экрана. Можно сбросить сохранение — копия останется в браузере.'}
+          </p>
+          <p className="fine">{this.state.error}</p>
           <button
             type="button"
             onClick={() => {
+              try {
+                const raw = localStorage.getItem('tidecaller-save-v1');
+                if (raw) localStorage.setItem('tidecaller-save-v1-backup', raw);
+              } catch {
+                /* quota */
+              }
               localStorage.removeItem('tidecaller-save-v1');
               location.reload();
             }}
           >
-            Сбросить сохранение
+            {en ? 'Reset save' : 'Сбросить сохранение'}
           </button>
         </div>
       );
