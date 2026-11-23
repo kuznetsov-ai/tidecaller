@@ -50,20 +50,25 @@ for (const vp of VIEWPORTS) {
         await page.reload();
         await page.waitForSelector('[data-testid=app]');
         await page.evaluate(() => document.fonts.ready.then(() => 1));
-        for (const step of fx.steps ?? []) {
-          if ('click' in step) await page.locator(step.click).nth(step.nth ?? 0).click();
-          else if ('key' in step) await page.keyboard.press(step.key);
-          else await page.waitForTimeout(step.wait);
-        }
-        await page.waitForTimeout(120);
-        if (fx.hints) {
-          // the bubble must exist and the screenshot must show it
-          await page.waitForSelector('[data-testid=coach-bubble]');
-          await page.locator('[data-testid=coach-bubble]').scrollIntoViewIfNeeded();
+        const stepIssues: { type: string; detail: string }[] = [];
+        try {
+          for (const step of fx.steps ?? []) {
+            if ('click' in step) await page.locator(step.click).nth(step.nth ?? 0).click();
+            else if ('key' in step) await page.keyboard.press(step.key);
+            else await page.waitForTimeout(step.wait);
+          }
+          await page.waitForTimeout(120);
+          if (fx.hints) {
+            // the bubble must exist and the screenshot must show it
+            await page.waitForSelector('[data-testid=coach-bubble]', { timeout: 8_000 });
+            await page.locator('[data-testid=coach-bubble]').scrollIntoViewIfNeeded();
+          }
+        } catch (error) {
+          stepIssues.push({ type: 'step-failed', detail: String(error).split('\n')[0].slice(0, 160) });
         }
         const screen = await page.getByTestId('app').getAttribute('data-screen');
         await page.screenshot({ path: path.join(dir, `${fx.name}.png`), fullPage: true, animations: 'disabled' });
-        const issues = await page.evaluate(LAYOUT_SRC);
+        const issues = [...stepIssues, ...((await page.evaluate(LAYOUT_SRC)) as { type: string; detail: string }[])];
         report[fx.name] = { screen, issues, errors: errors.slice(before) };
       }
       // one-pager

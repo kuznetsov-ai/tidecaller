@@ -316,3 +316,54 @@ h1, h2, .card strong, .enemy strong, .choices strong { overflow-wrap: break-word
 .coach-next { background: var(--gold); color: #1c1712; font-weight: 700; }
 .hand .card[data-drag='1'] { touch-action: pan-x; }
 .phial .phial-fx { display: block; font-size: 11px; color: var(--dim); }
+
+/* combat log: a plain heading on desktop, a toggle on phones */
+.log .log-toggle { display: none; }
+.log h2 { margin: 0 0 6px; }
+
+/* hand scroll affordance: fade the side that has more cards */
+.hand { scrollbar-width: thin; scrollbar-color: rgba(226, 177, 90, 0.5) transparent; }
+.hand.more-right { -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); mask-image: linear-gradient(90deg, #000 85%, transparent); }
+.hand.more-left { -webkit-mask-image: linear-gradient(90deg, transparent, #000 15%); mask-image: linear-gradient(90deg, transparent, #000 15%); }
+.hand.more-left.more-right { -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); }
+
+/* phones: the whole fight fits one screen — header, gauge and enemies scroll in the middle, hand and End turn stay pinned */
+@media (max-width: 600px) {
+  .screen.combat { height: 100vh; height: 100dvh; min-height: 0; display: flex; flex-direction: column; padding: 8px 10px 6px; overflow: hidden; }
+  .combat .topbar { flex: none; gap: 4px 10px; display: grid; grid-template-columns: 1fr auto; align-items: center; }
+  .combat .topbar .kicker { display: none; }
+  .combat .topbar h1 { font-size: 20px; margin: 0; }
+  .combat .topbar > div:first-child { grid-column: 1; grid-row: 1; }
+  .combat .topbar > button.ghost { grid-column: 2; grid-row: 1; padding: 6px 12px; }
+  .combat .topbar .stats { grid-column: 1 / -1; gap: 10px; font-size: 13px; flex-wrap: wrap; }
+  .combat .topbar .relics { grid-column: 1 / -1; flex-wrap: nowrap; overflow-x: auto; max-width: 100%; scrollbar-width: none; }
+  .combat .topbar .relic { white-space: nowrap; font-size: 12px; padding: 3px 8px; }
+  .combat-grid { flex: 1 1 auto; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+  .combat .gauge { flex: none; }
+  .combat .gauge .band-tags { display: none; }
+  .combat .gauge ol { margin: 4px 0; padding: 4px; }
+  .combat .gauge li { width: 26px; height: 20px; }
+  .combat .gauge .drift { margin: 2px 0 0; }
+  .combat .enemy { grid-template-columns: 56px 1fr; padding: 8px; border-radius: 16px; }
+  .combat .enemy .creature { width: 56px; height: 56px; }
+  .combat .enemy .tip-line { display: none; }
+  .combat .coach { font-size: 13px; padding: 6px 10px; }
+  .combat .log { flex: none; padding: 6px 10px; max-height: none; }
+  .combat .log .log-toggle { display: block; width: 100%; padding: 6px 8px; font-size: 13px; font-family: Manrope, sans-serif; }
+  .combat .log .log-title { display: none; }
+  .combat .log:not(.open) ul { display: none; }
+  .combat .dock { flex: none; display: flex; flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 6px; margin-top: 6px; min-width: 0; }
+  .combat .dock .hand { order: 0; min-height: 0; padding: 4px 2px 6px; gap: 6px; justify-content: flex-start; }
+  .combat .dock .card { width: 116px; min-height: 150px; padding: 24px 8px 8px; }
+  .combat .dock .card strong { font-size: 13px; }
+  .combat .dock .card .rules { font-size: 11px; line-height: 1.3; }
+  .combat .dock .card .knot { height: 18px; }
+  .combat .dock .phials { order: 1; flex-direction: row; flex-wrap: nowrap; gap: 6px; }
+  .combat .dock .phial { flex: 1 1 0; min-width: 0; padding: 3px 6px; font-size: 12px; text-align: center; }
+  .combat .dock .phial .phial-fx { font-size: 10px; }
+  .combat .dock .piles { order: 2; display: grid; grid-template-columns: 1fr 1fr 1fr 1.4fr; gap: 6px; }
+  .combat .dock .piles button { padding: 8px 4px; font-size: 12px; text-align: center; min-height: 40px; }
+  .modal { place-items: end center; padding: 8px; }
+  .modal .sheet { max-height: 70vh; overflow: auto; padding: 16px; }
+  .modal .choices button { flex: 1 1 120px; }
+}

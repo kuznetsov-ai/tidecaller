@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { CARDS } from '../game/cards';
 import { PHIALS } from '../game/phials';
 import { cardCost } from '../game/combat';
@@ -41,7 +41,24 @@ export function CombatScreen() {
   const pause = useContext(PauseApi);
   const combat = state.combat;
   const lang = state.meta.settings.lang;
-  const [pile, setPile] = useState<null | 'draw' | 'discard' | 'exhaust' | 'deck'>(null);
+  const [pile, setPile] = useState<null | 'draw' | 'discard' | 'exhaust'>(null);
+  const [logOpen, setLogOpen] = useState(false);
+  const handRef = useRef<HTMLDivElement>(null);
+  const [handMore, setHandMore] = useState({ left: false, right: false });
+  const handCount = combat?.hand.length ?? 0;
+  useEffect(() => {
+    const el = handRef.current;
+    if (!el) return;
+    const update = () =>
+      setHandMore({ left: el.scrollLeft > 4, right: el.scrollLeft + el.clientWidth < el.scrollWidth - 4 });
+    update();
+    el.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    return () => {
+      el.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
+  }, [handCount]);
   if (!combat) return null;
   const note = debtNote(combat, lang);
   const echo = combat.echo;
@@ -110,8 +127,13 @@ export function CombatScreen() {
             {combat.cheapNext > 0 && <span>{tx(lang, 'Следующая −', 'Next −')}{combat.cheapNext}</span>}
           </div>
         </div>
-        <aside className="log" data-testid="log">
-          <h2>{tx(lang, 'Журнал', 'Log')}</h2>
+        <aside className={`log${logOpen ? ' open' : ''}`} data-testid="log">
+          <h2>
+            <button type="button" className="log-toggle" aria-expanded={logOpen} onClick={() => setLogOpen((v) => !v)}>
+              {tx(lang, 'Журнал', 'Log')}
+            </button>
+            <span className="log-title">{tx(lang, 'Журнал', 'Log')}</span>
+          </h2>
           <ul>
             {state.combatLog
               .slice(-8)
@@ -145,7 +167,11 @@ export function CombatScreen() {
             </button>
           ))}
         </div>
-        <div className="hand">
+        <div
+          className={`hand${handMore.left ? ' more-left' : ''}${handMore.right ? ' more-right' : ''}`}
+          ref={handRef}
+          data-testid="hand"
+        >
           {combat.hand.map((card) => {
             const def = CARDS[card.id];
             const playable =
@@ -195,12 +221,17 @@ export function CombatScreen() {
         <div className="modal" data-testid="tide-choice">
           <div className="sheet">
             <h2>{tx(lang, 'Куда сдвинуть воду?', 'Which way does the water go?')}</h2>
+            <p className="fine" data-testid="tide-now">
+              {tx(lang, `Сейчас прилив ${combat.tide}.`, `The tide is at ${combat.tide}.`)}
+            </p>
             <div className="choices">
               <button type="button" onClick={() => dispatch({ type: 'tideChoice', dir: 1 })}>
                 {tx(lang, `Прилив +${state.pending.mag}`, `Tide +${state.pending.mag}`)}
+                <small>→ {Math.min(8, combat.tide + state.pending.mag)}</small>
               </button>
               <button type="button" onClick={() => dispatch({ type: 'tideChoice', dir: -1 })}>
                 {tx(lang, `Прилив −${state.pending.mag}`, `Tide −${state.pending.mag}`)}
+                <small>→ {Math.max(0, combat.tide - state.pending.mag)}</small>
               </button>
               <button type="button" className="ghost" onClick={() => dispatch({ type: 'cancelPending' })}>
                 {tx(lang, 'Отмена', 'Cancel')}

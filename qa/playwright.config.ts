@@ -7,7 +7,7 @@ export default defineConfig({
   fullyParallel: true,
   workers: Number(process.env.WORKERS ?? 5),
   reporter: [['list']],
-  use: { baseURL: process.env.BASE_URL ?? 'http://127.0.0.1:4318', headless: true, video: 'off' },
+  use: { baseURL: process.env.BASE_URL ?? 'http://127.0.0.1:4318', headless: true, video: 'off', actionTimeout: 8_000 },
   webServer: process.env.BASE_URL
     ? undefined
     : {
