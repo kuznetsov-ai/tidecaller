@@ -3,7 +3,7 @@ import { policyAction } from './game/policy';
 import { freshState, reduce, sanitize } from './game/reducer';
 import type { Action, GameState } from './game/types';
 
-const KEY = 'saltbound-save-v1';
+const KEY = 'tidecaller-save-v1';
 
 function load(): GameState {
   try {
@@ -48,7 +48,7 @@ export function useGame(): GameState {
 
 declare global {
   interface Window {
-    __SALTBOUND__?: {
+    __TIDECALLER__?: {
       getState: () => GameState;
       dispatch: (action: Action) => void;
       policyStep: () => Action | null;
@@ -56,7 +56,7 @@ declare global {
   }
 }
 
-window.__SALTBOUND__ = {
+window.__TIDECALLER__ = {
   getState,
   dispatch,
   policyStep() {

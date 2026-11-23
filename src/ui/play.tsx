@@ -54,7 +54,7 @@ export function CombatScreen() {
     <section className={`screen combat band-${combat.tide >= 7 ? 'storm' : combat.tide <= 1 ? 'deep' : 'mid'}`} data-testid="combat" data-phase={combat.phase}>
       <header className="topbar">
         <div>
-          <p className="kicker">SALTBOUND</p>
+          <p className="kicker">{tx(lang, 'Зов прилива', 'TIDECALLER')}</p>
           <h1>{state.tutorialStep !== null ? tx(lang, 'Учебная бухта', 'Practice cove') : tr(ACT_NAME[state.run?.act ?? 1], lang)}</h1>
         </div>
         <RelicRow ids={combat.relics} lang={lang} />

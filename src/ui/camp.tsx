@@ -15,7 +15,7 @@ export function StoryScreen() {
   const copy = STORIES[id ?? 'act1'] ?? STORIES.act1;
   return (
     <section className="screen story" data-testid="story">
-      <p className="kicker">SALTBOUND</p>
+      <p className="kicker">{tx(lang, 'Зов прилива', 'TIDECALLER')}</p>
       <h1>{tr(copy.title, lang)}</h1>
       <p className="prose">{tr(copy.body, lang)}</p>
       <button type="button" data-testid="ack-story" onClick={() => dispatch({ type: 'ackStory' })}>

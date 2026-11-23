@@ -17,8 +17,8 @@ export function MenuScreen() {
     <section className="screen menu" data-testid="menu">
       <div className="menu-copy">
         <p className="kicker">{tx(lang, 'Гильдия Колоколов', 'Guild of Bells')}</p>
-        <h1>SALTBOUND</h1>
-        <p className="sub">{tx(lang, 'Солевязь', 'Knots on the water')}</p>
+        <h1>{tx(lang, 'Зов прилива', 'TIDECALLER')}</h1>
+        <p className="sub">{tx(lang, 'TIDECALLER', 'Зов прилива')}</p>
         <p className="pitch">{tx(lang, 'Прилив — клинок, который вы держите вдвоём.', 'The tide is a blade you both hold.')}</p>
         <div className="menu-actions">
           {state.run && (
@@ -298,7 +298,7 @@ export function SettingsScreen() {
   const lang = useGame().meta.settings.lang;
   return (
     <section className="screen settings-screen">
-      <p className="kicker">SALTBOUND</p>
+      <p className="kicker">{tx(lang, 'Зов прилива', 'TIDECALLER')}</p>
       <h1>{tx(lang, 'Настройки', 'Settings')}</h1>
       <SettingsBits />
       <button type="button" className="ghost" onClick={() => dispatch({ type: 'goto', screen: 'menu' })}>

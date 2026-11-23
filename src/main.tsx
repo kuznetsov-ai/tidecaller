@@ -52,12 +52,12 @@ class Guard extends Component<{ children: ReactNode }, { error: string | null }>
     if (this.state.error) {
       return (
         <div className="screen story">
-          <h1>SALTBOUND</h1>
+          <h1>Зов прилива</h1>
           <p className="prose">{this.state.error}</p>
           <button
             type="button"
             onClick={() => {
-              localStorage.removeItem('saltbound-save-v1');
+              localStorage.removeItem('tidecaller-save-v1');
               location.reload();
             }}
           >

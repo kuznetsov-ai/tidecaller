@@ -13,7 +13,7 @@ test('first act is playable without console errors', async ({ page }) => {
 
   await page.addInitScript(() => localStorage.clear());
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'SALTBOUND' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Зов прилива' })).toBeVisible();
   await page.screenshot({ path: `${shots}/01-menu.png` });
 
   await page.getByTestId('start').click();
@@ -88,7 +88,7 @@ test('first act is playable without console errors', async ({ page }) => {
       await page.screenshot({ path: `${shots}/11-act2.png` });
       break;
     }
-    const action = await page.evaluate(() => window.__SALTBOUND__?.policyStep() ?? null);
+    const action = await page.evaluate(() => window.__TIDECALLER__?.policyStep() ?? null);
     if (!action) break;
   }
 
@@ -97,7 +97,7 @@ test('first act is playable without console errors', async ({ page }) => {
   expect(seen.has('combat') || finalScreen === 'combat').toBeTruthy();
   expect(seen.has('event') || seen.has('shop') || seen.has('reward')).toBeTruthy();
   expect(['map', 'combat', 'story', 'reward', 'event', 'shop', 'rest', 'victory', 'defeat']).toContain(finalScreen);
-  const floors = await page.evaluate(() => window.__SALTBOUND__?.getState().run?.floors ?? window.__SALTBOUND__?.getState().outcome?.floors ?? 0);
+  const floors = await page.evaluate(() => window.__TIDECALLER__?.getState().run?.floors ?? window.__TIDECALLER__?.getState().outcome?.floors ?? 0);
   expect(floors).toBeGreaterThanOrEqual(4);
   expect(errors, errors.join('\n')).toEqual([]);
 });
