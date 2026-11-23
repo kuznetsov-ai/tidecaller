@@ -321,7 +321,8 @@ export function MapScreen() {
         </button>
       </header>
       <div className="map-wrap">
-        <svg className="map" viewBox={`0 0 680 ${height}`} role="img">
+        <div className="map-box" style={{ height }}>
+        <svg className="map" viewBox={`0 0 680 ${height}`} preserveAspectRatio="none" role="img">
           {run.map.nodes.flatMap((node) =>
             node.next.map((id) => {
               const to = run.map.nodes.find((n) => n.id === id);
@@ -334,12 +335,13 @@ export function MapScreen() {
                   x2={48 + to.col * 92}
                   y2={36 + to.row * 92}
                   className={run.map.path.includes(node.id) ? 'walked' : ''}
+                  vectorEffect="non-scaling-stroke"
                 />
               );
             }),
           )}
         </svg>
-        <div className="nodes" style={{ height }}>
+        <div className="nodes">
           {run.map.nodes.map((node) => {
             const here = run.map.current === node.id;
             const can = open.has(node.id);
@@ -348,7 +350,7 @@ export function MapScreen() {
                 key={node.id}
                 type="button"
                 className={`node kind-${node.kind}${here ? ' here' : ''}${can ? ' can' : ''}${run.map.path.includes(node.id) ? ' was' : ''}`}
-                style={{ left: 48 + node.col * 92, top: 36 + node.row * 92 }}
+                style={{ left: `${((48 + node.col * 92) / 680) * 100}%`, top: 36 + node.row * 92 }}
                 disabled={!can}
                 data-testid="map-node"
                 data-kind={node.kind}
@@ -361,11 +363,20 @@ export function MapScreen() {
             );
           })}
         </div>
+        </div>
       </div>
       <footer className="map-foot">
         <span>
           {tx(lang, 'Сид', 'Seed')} {run.seed.toString(36)}
         </span>
+        <ul className="map-legend" data-testid="map-legend">
+          {(['combat', 'elite', 'event', 'shop', 'rest', 'boss'] as const).map((kind) => (
+            <li key={kind} className={`kind-${kind}`}>
+              <i />
+              {tr(NODE[kind], lang)}
+            </li>
+          ))}
+        </ul>
         <span>{tx(lang, 'Только вперёд. Край карты — босс.', 'Forward only. The bottom of the route is the boss.')}</span>
       </footer>
       {deckOpen && (

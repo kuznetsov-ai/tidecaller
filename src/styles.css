@@ -211,24 +211,28 @@ h2 { margin: 8px 0; font-size: 28px; }
 .pile, .phial { background: transparent; }
 
 .map-wrap { position: relative; overflow: auto; max-height: calc(100vh - 180px); margin-top: 12px; border-radius: 20px; background: rgba(0,0,0,.18); }
-.map { width: min(680px, 100%); display: block; margin: 0 auto; }
+.map-box { position: relative; width: min(680px, 100%); margin: 0 auto; }
+.map { width: 100%; height: 100%; display: block; }
 .map line { stroke: rgba(243, 236, 223, 0.25); stroke-width: 2; }
 .map line.walked { stroke: rgba(226, 177, 90, 0.7); }
-.nodes { position: absolute; inset: 0 auto auto 50%; width: min(680px, 100%); transform: translateX(-50%); }
+.nodes { position: absolute; inset: 0; }
 .node {
-  position: absolute; transform: translate(-50%, -50%); width: 74px; min-height: 54px;
-  border-radius: 16px; padding: 6px; text-align: center; background: #10262b;
+  position: absolute; transform: translate(-50%, -50%); width: clamp(40px, 10.5vw, 74px); min-height: 54px;
+  border-radius: 16px; padding: 6px 2px; text-align: center; background: #10262b;
 }
 .node i { display: block; width: 10px; height: 10px; border-radius: 50%; margin: 0 auto 4px; background: var(--dim); }
-.node.kind-combat i { background: var(--coral); }
-.node.kind-elite i { background: #d4574e; }
-.node.kind-event i { background: var(--slack); }
-.node.kind-shop i { background: var(--gold); }
-.node.kind-rest i { background: var(--glass); }
-.node.kind-boss i { background: var(--bone); }
+.kind-combat > i { background: var(--coral); }
+.kind-elite > i { background: #d4574e; }
+.kind-event > i { background: var(--slack); }
+.kind-shop > i { background: var(--gold); }
+.kind-rest > i { background: var(--glass); }
+.kind-boss > i { background: var(--bone); }
 .node.can { box-shadow: 0 0 0 2px var(--gold); }
 .node.here { background: #1d3a34; }
 .node span { font-size: 11px; }
+.map-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; list-style: none; padding: 0; margin: 0; font-size: 12px; }
+.map-legend li { display: inline-flex; align-items: center; gap: 6px; }
+.map-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
 .map-foot { color: var(--dim); margin-top: 8px; }
 
 .modal {
@@ -254,12 +258,35 @@ h2 { margin: 8px 0; font-size: 28px; }
 @keyframes shake { 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
 body.reduced *, body.reduced *::before { animation: none !important; transition: none !important; }
 
+/* text never spills out of its box */
+h1, h2, .card strong, .enemy strong, .choices strong { overflow-wrap: break-word; hyphens: auto; }
+.cast button strong, .cast button em, .charts button small { display: block; }
+.cast button em { margin: 2px 0 6px; }
+
+/* combat dock: hand gets the middle column and scrolls instead of pushing the page */
+.dock { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: end; }
+.hand { min-width: 0; overflow-x: auto; justify-content: safe center; padding: 6px 4px 12px; }
+.hand .card { flex: 0 0 auto; }
+
 @media (max-width: 980px) {
   .screen { padding: 16px; }
-  .menu, .combat-grid, .enemy { grid-template-columns: 1fr; }
+  .menu, .combat-grid { grid-template-columns: 1fr; }
   .instrument { display: none; }
-  .hand { overflow-x: auto; justify-content: flex-start; }
+  .hand { justify-content: flex-start; }
   .card { width: 132px; min-height: 196px; }
-  h1 { font-size: 40px; }
+  h1 { font-size: 36px; }
+  .dock { grid-template-columns: 1fr; }
+  .phials, .piles { flex-direction: row; flex-wrap: wrap; }
+  .dock .hand { order: -1; }
+  .piles .end { flex: 1 1 140px; text-align: center; }
+  .enemy { grid-template-columns: 84px 1fr; }
+  .enemy .creature { width: 84px; height: 84px; }
+  .gauge ol { display: flex; flex-direction: row-reverse; gap: 4px; padding: 6px; }
+  .gauge li { width: 28px; margin: 0; }
+  .gauge li.now b { right: auto; left: 50%; top: -12px; transform: translateX(-50%); }
+  .log { max-height: 170px; overflow: auto; }
+  .node { min-height: 44px; border-radius: 12px; }
+  .node span { font-size: 9px; }
+  .relics { max-width: 100%; }
 }
 .choices small.why { color: var(--coral); }

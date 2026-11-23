@@ -59,7 +59,7 @@ function layoutCheck() {
     const tr = range.getBoundingClientRect();
     if (tr.width < 1) continue;
     const box = parent.closest(boxSel);
-    if (box && !seen.has(box)) {
+    if (box && !seen.has(box) && !/(auto|scroll)/.test(getComputedStyle(box).overflowY + getComputedStyle(box).overflowX)) {
       const br = box.getBoundingClientRect();
       const out = Math.max(br.left - tr.left, tr.right - br.right, br.top - tr.top, tr.bottom - br.bottom);
       if (out > 2) {
@@ -96,7 +96,7 @@ function mapCheck() {
   const vb = svg.viewBox.baseVal; const r = svg.getBoundingClientRect();
   const sx = r.width / vb.width, sy = r.height / vb.height;
   for (const n of document.querySelectorAll('.node')) {
-    const st = n.style; const x = parseFloat(st.left), y = parseFloat(st.top);
+    const st = n.style; const x = st.left.endsWith('%') ? parseFloat(st.left) / 100 * vb.width : parseFloat(st.left); const y = parseFloat(st.top);
     const br = n.getBoundingClientRect();
     const cx = br.left + br.width / 2, cy = br.top + br.height / 2;
     const ex = r.left + x * sx, ey = r.top + y * sy;
