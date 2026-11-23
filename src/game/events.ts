@@ -155,7 +155,7 @@ export const EVENT_LIST: EventDef[] = [
       },
       {
         text: { ru: 'Заплатить за тишину', en: 'Pay for quiet' },
-        hint: { ru: '−20 монет. Если монет меньше — из колоды пропадёт случайная карта.', en: '−20 coins. If you have less, a random card leaves the deck.' },
+        hint: { ru: '−20 монет. Если монет меньше и в колоде больше 5 карт — пропадёт случайная карта (не проклятие).', en: '−20 coins. If you have less and more than 5 cards, a random non-curse card leaves the deck.' },
       },
     ],
   },

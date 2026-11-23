@@ -529,9 +529,16 @@ function eventChoose(state: GameState, index: number, rng: Rng): void {
       return;
     }
     if (run.gold >= 20) run.gold -= 20;
-    else if (run.deck.length > 5) {
-      const sacrifice = rng.pick(run.deck.filter((c) => CARDS[c.id]?.rarity !== 'curse'));
-      if (sacrifice) run.deck = run.deck.filter((c) => c.uid !== sacrifice.uid);
+    else if (realCount(run) > 5) {
+      // Never below 5 real cards; curses and statuses are not taken (that would be a favour).
+      const pool = run.deck.filter((c) => {
+        const r = CARDS[c.id]?.rarity;
+        return r && r !== 'curse' && r !== 'status';
+      });
+      if (pool.length) {
+        const sacrifice = rng.pick(pool);
+        run.deck = run.deck.filter((c) => c.uid !== sacrifice.uid);
+      }
     }
     done();
     return;

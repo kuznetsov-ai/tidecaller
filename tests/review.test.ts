@@ -189,3 +189,27 @@ describe('shop removal with Merchant’s Teeth', () => {
     expect(s.run!.gold).toBe(100 - 54);
   });
 });
+
+describe('Argument on the Dock with no coins', () => {
+  it('never drops the deck below 5 real cards, even with curses in it', () => {
+    let s = inRun();
+    s.screen = 'event';
+    s.eventId = 'argument';
+    s.run!.gold = 0;
+    s.run!.deck = s.run!.deck.slice(0, 5);
+    s.run!.deck.push({ uid: 'c1', id: 'barnacle', up: false }, { uid: 'c2', id: 'barnacle', up: false });
+    s = reduce(s, { type: 'eventChoose', index: 1 });
+    expect(s.run!.deck.length).toBe(7);
+  });
+  it('takes one real card when there are more than 5', () => {
+    let s = inRun();
+    s.screen = 'event';
+    s.eventId = 'argument';
+    s.run!.gold = 0;
+    const n = s.run!.deck.length;
+    s.run!.deck.push({ uid: 'c1', id: 'barnacle', up: false });
+    s = reduce(s, { type: 'eventChoose', index: 1 });
+    expect(s.run!.deck.length).toBe(n);
+    expect(s.run!.deck.some((c) => c.uid === 'c1')).toBe(true);
+  });
+});
