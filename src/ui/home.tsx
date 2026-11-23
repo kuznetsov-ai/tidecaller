@@ -93,6 +93,8 @@ export function SelectScreen() {
   const lang = state.meta.settings.lang;
   const [chart, setChart] = useState(0);
   const [who, setWho] = useState<CharacterId>('brine');
+  const [armed, setArmed] = useState(false);
+  const parked = !!state.run && state.tutorialStep === null;
   const locked = (id: CharacterId) => (id === 'keel' && !state.meta.unlocks.keel) || (id === 'moth' && !state.meta.unlocks.moth);
   return (
     <section className="screen select" data-testid="select">
@@ -131,13 +133,21 @@ export function SelectScreen() {
           ))}
         </div>
       )}
+      {parked && (
+        <p className="fine" data-testid="parked-warning">
+          {tx(lang, 'У вас есть сохранённый рейс. Новый рейс его заменит: соль за пройденное начислится как за брошенный.', 'You have a saved voyage. A new one replaces it; its salt is paid as for an abandoned voyage.')}
+        </p>
+      )}
       <div className="row-actions">
         <button
           type="button"
           data-testid="cast-off"
-          onClick={() => dispatch({ type: 'startRun', character: who, chart })}
+          className={parked && armed ? 'danger' : undefined}
+          onClick={() => (parked && !armed ? setArmed(true) : dispatch({ type: 'startRun', character: who, chart }))}
         >
-          {tx(lang, 'Отчалить', 'Cast off')}
+          {parked && armed
+            ? tx(lang, 'Да, бросить сохранённый рейс и отчалить', 'Yes, drop the saved voyage and cast off')
+            : tx(lang, 'Отчалить', 'Cast off')}
         </button>
         <button type="button" className="ghost" onClick={() => dispatch({ type: 'goto', screen: 'menu' })}>
           {tx(lang, 'Назад', 'Back')}

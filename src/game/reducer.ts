@@ -335,6 +335,21 @@ function finishRun(state: GameState, victory: boolean, source: string): void {
   state.screen = victory ? 'victory' : 'defeat';
 }
 
+/** Everything that belongs to one voyage's flow, cleared whenever a new one starts or the save is wiped. */
+function clearFlow(state: GameState): void {
+  state.combat = null;
+  state.reward = null;
+  state.shop = null;
+  state.eventId = null;
+  state.pending = null;
+  state.picker = null;
+  state.hold = null;
+  state.target = 0;
+  state.storyId = null;
+  state.outcome = null;
+  state.combatLog = [];
+}
+
 function realCount(run: RunState): number {
   return run.deck.filter((c) => {
     const d = CARDS[c.id];
@@ -608,17 +623,16 @@ function apply(state: GameState, action: Action, rng: Rng): void {
       else if (state.run) state.screen = 'map';
       else state.screen = 'menu';
       return;
-    case 'wipe':
+    case 'wipe': {
+      const settings = state.meta.settings;
       state.meta = defaultMeta();
+      state.meta.settings = settings;
       state.run = null;
-      state.combat = null;
-      state.reward = null;
-      state.shop = null;
-      state.eventId = null;
-      state.outcome = null;
+      clearFlow(state);
       state.screen = 'menu';
       state.tutorialStep = null;
       return;
+    }
     case 'beginSelect':
       state.screen = 'select';
       return;
@@ -626,9 +640,9 @@ function apply(state: GameState, action: Action, rng: Rng): void {
       const seed = rng.int(1, 2_000_000_000);
       const seeded = new Rng(seed);
       const run = createRun(state.meta, 'brine', 0, seeded, seed);
+      clearFlow(state);
       state.run = run;
       state.tutorialStep = 0;
-      state.outcome = null;
       beginFight(state, seeded, ['tutor_gull'], 'combat', 0, true);
       rng.s = seeded.s;
       return;
@@ -645,14 +659,12 @@ function apply(state: GameState, action: Action, rng: Rng): void {
       if (action.character === 'keel' && !state.meta.unlocks.keel) return;
       if (action.character === 'moth' && !state.meta.unlocks.moth) return;
       if (action.chart > state.meta.maxChart) return;
+      // A parked voyage being replaced is settled like an abandon, so its salt and stats are not lost.
+      if (state.run && state.tutorialStep === null && state.storyId !== 'afterTutorial') finishRun(state, false, 'attack');
       const seed = action.seed ?? rng.int(1, 2_000_000_000);
       const seeded = new Rng(seed);
       state.run = createRun(state.meta, action.character, action.chart, seeded, seed);
-      state.combat = null;
-      state.reward = null;
-      state.shop = null;
-      state.eventId = null;
-      state.outcome = null;
+      clearFlow(state);
       state.tutorialStep = null;
       state.screen = 'story';
       state.storyId = 'act1';
@@ -664,7 +676,10 @@ function apply(state: GameState, action: Action, rng: Rng): void {
         apply(state, { type: 'startRun', character: 'brine', chart: 0 }, rng);
         return;
       }
-      if (state.run && state.storyId?.startsWith('act')) state.screen = 'map';
+      if (state.screen === 'story' && state.run && state.storyId?.startsWith('act')) {
+        state.screen = 'map';
+        state.storyId = null;
+      }
       return;
     }
     case 'chooseNode': {

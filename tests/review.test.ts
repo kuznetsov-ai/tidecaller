@@ -135,3 +135,44 @@ describe('abandon salt farm (P1-3)', () => {
     expect(s.meta.marks - before).toBe(3 * 2 + 12);
   });
 });
+
+describe('new voyage over a parked one (P1-7)', () => {
+  it('clears picker/pending/hold/target/storyId and settles the old run', () => {
+    let s = inRun();
+    s.run!.floors = 4;
+    s.screen = 'event';
+    s.eventId = 'moonwell';
+    s.picker = { mode: 'upgrade', left: 2, source: 'event' } as never;
+    s.pending = { uid: 'x', d: 2 } as never;
+    s.target = 2;
+    s = reduce(s, { type: 'park' });
+    expect(s.hold).toBe('event');
+    const runs = s.meta.stats.runs;
+    const marks = s.meta.marks;
+    s = reduce(s, { type: 'beginSelect' });
+    s = reduce(s, { type: 'startRun', character: 'brine', chart: 0, seed: 9 });
+    expect(s.picker).toBe(null);
+    expect(s.pending).toBe(null);
+    expect(s.hold).toBe(null);
+    expect(s.target).toBe(0);
+    expect(s.eventId).toBe(null);
+    expect(s.outcome).toBe(null);
+    expect(s.screen).toBe('story');
+    expect(s.meta.stats.runs).toBe(runs + 1);
+    expect(s.meta.marks).toBe(marks + 8);
+  });
+  it('wipe keeps language and volume (P2-14)', () => {
+    let s = inRun();
+    s.meta.settings.lang = 'en';
+    s.picker = { mode: 'upgrade', left: 1, source: 'event' } as never;
+    s = reduce(s, { type: 'wipe' });
+    expect(s.meta.settings.lang).toBe('en');
+    expect(s.picker).toBe(null);
+  });
+  it('ackStory clears storyId so resume never falls back to a stale story (P2-13)', () => {
+    let s = inRun();
+    expect(s.storyId).toBe(null);
+    s = reduce(s, { type: 'ackStory' });
+    expect(s.screen).toBe('map');
+  });
+});
