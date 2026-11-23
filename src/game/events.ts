@@ -92,7 +92,7 @@ export const EVENT_LIST: EventDef[] = [
         hint: { ru: 'Заплатить 35. Снять копию карты.', en: 'Pay 35. Duplicate a card.' },
       },
       {
-        text: { ru: 'Купить склянку', en: 'Buy a phial' },
+        text: { ru: 'Взять склянку', en: 'Take a phial' },
         hint: { ru: 'Случайная склянка, если есть слот. Иначе 15 монет.', en: 'A random phial if a slot is free, otherwise 15 coins.' },
       },
       {

@@ -310,3 +310,4 @@ h1, h2, .card strong, .enemy strong, .choices strong { overflow-wrap: break-word
 .coach-actions button { padding: 8px 12px; }
 .coach-next { background: var(--gold); color: #1c1712; font-weight: 700; }
 .hand .card[data-drag='1'] { touch-action: pan-x; }
+.phial .phial-fx { display: block; font-size: 11px; color: var(--dim); }

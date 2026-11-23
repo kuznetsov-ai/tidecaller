@@ -287,7 +287,7 @@ export function HelpScreen() {
         </article>
         <article>
           <h2>{tx(lang, 'Прилив 0–8', 'Tide 0–8')}</h2>
-          <p>{tx(lang, 'Отлив 0–3, штиль 3–5, паводок 5–8. На общей отметке горят обе стихии. В конце хода вода сама +1. На 7–8 шторм бьёт всех на 3 сквозь защиту. На 0–1 мёртвая вода бьёт врагов на 2, а вы берёте на карту меньше.', 'Ebb is 0–3, slack 3–5, flood 5–8. On a shared mark both elements light up. The water adds 1 at end of turn. At 7–8 a storm hits everyone for 3 through block. At 0–1 dead water hits enemies for 2 and you draw one less.')}</p>
+          <p>{tx(lang, 'Отлив 0–3, штиль 3–5, паводок 5–8. На общей отметке горят обе стихии. В конце хода вода сама +1. На 7–8 шторм бьёт всех на 3 сквозь защиту. На 0–1 (когда вы закрываете ход или после подъёма) мёртвая вода бьёт врагов на 2, а вы берёте на карту меньше. Если шторм добивает и вас, и последнего врага разом — бой проигран.', 'Ebb is 0–3, slack 3–5, flood 5–8. On a shared mark both elements light up. The water adds 1 at end of turn. At 7–8 a storm hits everyone for 3 through block. At 0–1 (when you close the turn or after the rise) dead water hits enemies for 2 and you draw one less. If a storm finishes you and the last enemy at once, the fight is lost.')}</p>
         </article>
         <article>
           <h2>{tx(lang, 'Соль и сила', 'Salt and strength')}</h2>

@@ -124,7 +124,7 @@ export const ENEMY_LIST: EnemyDef[] = [
     { ru: 'Чайка-воровка', en: 'Gullthief' },
     [26, 32],
     'gull',
-    { ru: 'Короткий клюв, длинный интерес к вашим картам. Сама вода её мало занимает.', en: 'A short beak and a long interest in your cards.' },
+    { ru: 'Клюёт, подталкивает воду на 1 и прячется за крылом. Простой ритм — выучите его.', en: 'Pecks, nudges the water up by 1, then hides behind a wing. A simple rhythm worth learning.' },
     [[atk(6)], [atk(4), tide(1)], [blk(6)]],
   ),
   named(

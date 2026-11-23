@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { CARDS } from '../game/cards';
+import { PHIALS } from '../game/phials';
 import { cardCost } from '../game/combat';
 import { reachableIds } from '../game/map';
 import type { CardInst, Lang } from '../game/types';
@@ -129,10 +130,18 @@ export function CombatScreen() {
               key={index}
               type="button"
               className="phial"
-              disabled={!id || combat.phase !== 'player' || (state.tutorialStep !== null && state.tutorialStep < 4)}
+              disabled={
+                !id ||
+                combat.phase !== 'player' ||
+                (state.tutorialStep !== null && state.tutorialStep < 4) ||
+                (id === 'springwater' && combat.player.hp >= combat.player.maxHp)
+              }
               onClick={() => dispatch({ type: 'drink', index })}
+              title={id ? `${tr(PHIALS[id].name, lang)}: ${tr(PHIALS[id].text, lang)}` : undefined}
+              aria-label={id ? `${tr(PHIALS[id].name, lang)}: ${tr(PHIALS[id].text, lang)}` : tx(lang, 'Пустой слот склянки', 'Empty phial slot')}
             >
               {id ? tr(phialName(id), lang) : tx(lang, 'Пусто', 'Empty')}
+              {id && <small className="phial-fx">{tr(phialEffect(id), lang)}</small>}
             </button>
           ))}
         </div>
@@ -242,6 +251,17 @@ function phialName(id: string): { ru: string; en: string } {
     ironkelp: { ru: 'Железо', en: 'Iron' },
   };
   return names[id] ?? { ru: id, en: id };
+}
+
+function phialEffect(id: string): { ru: string; en: string } {
+  const fx: Record<string, { ru: string; en: string }> = {
+    springwater: { ru: '+14 корпуса', en: '+14 hull' },
+    stormglass: { ru: 'прилив → 7', en: 'tide → 7' },
+    ebb_ash: { ru: 'прилив → 1', en: 'tide → 1' },
+    saltspike: { ru: '7 соли', en: '7 salt' },
+    ironkelp: { ru: '16 защиты', en: '16 block' },
+  };
+  return fx[id] ?? { ru: '', en: '' };
 }
 
 function formatFx(fx: import('../game/types').Fx, lang: Lang): string {

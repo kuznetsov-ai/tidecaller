@@ -703,6 +703,7 @@ export function drinkPhial(combat: CombatState, index: number, rng: Rng, target:
   if (combat.phase !== 'player') return fx;
   const id = combat.phials[index];
   if (!id) return fx;
+  if (id === 'springwater' && combat.player.hp >= combat.player.maxHp) return fx; // would be wasted
   combat.phials[index] = null;
   if (id === 'springwater') healPlayer(combat, 14, fx);
   if (id === 'ironkelp') gainBlock(combat, 16, fx);

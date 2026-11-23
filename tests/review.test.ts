@@ -289,3 +289,16 @@ describe('sanitize partial saves (review P2-15)', () => {
     expect(sanitize(s).screen).toBe('map');
   });
 });
+
+import { drinkPhial } from '../src/game/combat';
+describe('phials (review P2-20)', () => {
+  it('Springwater is not spent at full hull', () => {
+    const c = mkCombat(['salt_knight']);
+    c.phials = ['springwater', null, null];
+    drinkPhial(c, 0, rng(), 0);
+    expect(c.phials[0]).toBe('springwater');
+    c.player.hp -= 5;
+    drinkPhial(c, 0, rng(), 0);
+    expect(c.phials[0]).toBe(null);
+  });
+});

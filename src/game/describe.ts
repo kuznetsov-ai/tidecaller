@@ -129,7 +129,7 @@ function line(effect: Effect, lang: Lang, affinity: Affinity, mods?: Mods): stri
     if (effect.op === 'block') return ru ? `Получить ${num} ${ruBlock(num)}${aff}.` : `Gain ${num} block${aff}.`;
     if (effect.op === 'salt') return ru ? `Наложить ${num} ${num === 1 ? 'соль' : 'соли'}${aff}.` : `Apply ${num} salt${aff}.`;
     if (effect.op === 'heal') return ru ? `Восстановить ${num} ${ruHull(num)}${aff}.` : `Heal ${num} hull${aff}.`;
-    return ru ? `Взять ${ruCards(num)}${aff}.` : `Draw ${num}${aff}.`;
+    return ru ? `Взять ${ruCards(num)}${aff}.` : `Draw ${num} ${num === 1 ? 'card' : 'cards'}${aff}.`;
   }
   return '';
 }
