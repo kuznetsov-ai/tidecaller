@@ -391,8 +391,11 @@ export function eventChoiceBlock(state: GameState, index: number): { ru: string;
   const hull = (n: number) => (run.hp <= n ? { ru: `Нужно больше ${n} корпуса.`, en: `Needs more than ${n} hull.` } : null);
   const none = (mode: PickerState['mode']) =>
     pickerCards(run, mode).length ? null : { ru: 'Нет подходящих карт.', en: 'No card qualifies.' };
-  if (id === 'wreck' && index === 0) return hull(10);
-  if (id === 'shrine' && index === 0) return hull(14);
+  const relicLeft = droppableRelics(run.relics).length
+    ? null
+    : { ru: 'Реликвий больше не осталось.', en: 'No relics are left to find.' };
+  if (id === 'wreck' && index === 0) return hull(10) ?? relicLeft;
+  if (id === 'shrine' && index === 0) return hull(14) ?? relicLeft;
   if (id === 'smuggler' && index === 0) return run.gold < 35 ? { ru: 'Нужно 35 монет.', en: 'Needs 35 coins.' } : none('duplicate');
   if (id === 'smuggler' && index === 2) return hull(8);
   if ((id === 'choir' && index === 0) || (id === 'eel' && index === 1)) return none('remove');

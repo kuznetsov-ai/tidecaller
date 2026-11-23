@@ -302,3 +302,16 @@ describe('phials (review P2-20)', () => {
     expect(c.phials[0]).toBe(null);
   });
 });
+
+import { eventChoiceBlock } from '../src/game/reducer';
+import { RELIC_LIST } from '../src/game/relics';
+describe('relic events with an empty pool (review P2-2)', () => {
+  it('Wreck/Shrine refuse instead of taking hull for nothing', () => {
+    const s = inRun();
+    s.eventId = 'wreck';
+    s.run!.relics = RELIC_LIST.map((r) => r.id);
+    expect(eventChoiceBlock(s, 0)).not.toBe(null);
+    s.eventId = 'shrine';
+    expect(eventChoiceBlock(s, 0)).not.toBe(null);
+  });
+});
