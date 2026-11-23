@@ -138,3 +138,89 @@ function hintCheck() {
   }
   return issues;
 }
+
+function parseColor(s) {
+  const m = /rgba?\(([^)]+)\)/.exec(s || '');
+  if (!m) return null;
+  const p = m[1].split(/[ ,\/]+/).filter(Boolean).map(Number);
+  return { r: p[0], g: p[1], b: p[2], a: p.length > 3 ? p[3] : 1 };
+}
+function blend(top, under) {
+  const a = top.a;
+  return { r: top.r * a + under.r * (1 - a), g: top.g * a + under.g * (1 - a), b: top.b * a + under.b * (1 - a), a: 1 };
+}
+function lum(c) {
+  const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+  return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b);
+}
+function bgOf(el) {
+  const INK = { r: 7, g: 16, b: 20, a: 1 };
+  const layers = [];
+  let e = el;
+  while (e && e !== document.body && e !== document.documentElement) {
+    const cs = getComputedStyle(e);
+    if (cs.backgroundImage && cs.backgroundImage !== 'none') return null; // gradients/art: not measurable here
+    const c = parseColor(cs.backgroundColor);
+    if (c && c.a >= 0.95) { layers.push(c); break; }
+    if (c && c.a > 0.02) layers.push(c);
+    e = e.parentElement;
+  }
+  let base = layers.length && layers[layers.length - 1].a >= 0.95 ? layers.pop() : INK;
+  while (layers.length) base = blend(layers.pop(), base);
+  return base;
+}
+/** WCAG AA text contrast on solid backgrounds (4.5:1, or 3:1 for large text). */
+function contrastCheck() {
+  const issues = [];
+  const seen = new Set();
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  let n;
+  while ((n = walker.nextNode())) {
+    if (!n.textContent.trim()) continue;
+    const el = n.parentElement;
+    if (!el || seen.has(el)) continue;
+    seen.add(el);
+    if (el.closest('[aria-hidden=true], :disabled, .card, svg')) continue;
+    const r = el.getBoundingClientRect();
+    if (r.width < 1 || r.height < 1) continue;
+    const cs = getComputedStyle(el);
+    if (cs.visibility === 'hidden' || Number(cs.opacity) < 0.5) continue;
+    const bg = bgOf(el);
+    if (!bg) continue;
+    let fg = parseColor(cs.color);
+    if (!fg) continue;
+    if (fg.a < 1) fg = blend(fg, bg);
+    const L1 = lum(fg), L2 = lum(bg);
+    const ratio = (Math.max(L1, L2) + 0.05) / (Math.min(L1, L2) + 0.05);
+    const size = parseFloat(cs.fontSize);
+    const large = size >= 24 || (size >= 18.6 && Number(cs.fontWeight) >= 700);
+    if (ratio < (large ? 3 : 4.5)) {
+      issues.push({ type: 'contrast', detail: `${ratio.toFixed(2)}:1 "${n.textContent.trim().slice(0, 30)}"` });
+      if (issues.length >= 3) break;
+    }
+  }
+  return issues;
+}
+/** Mobile combat: the hand and End turn must be on the first screen; the tide choice must not hide the gauge. */
+function mobileCombatCheck() {
+  const issues = [];
+  if (window.innerWidth > 600) return issues;
+  const app = document.querySelector('[data-screen=combat]');
+  if (!app) return issues;
+  const end = document.querySelector('[data-testid=end-turn]');
+  if (end && !document.querySelector('.modal')) {
+    const r = end.getBoundingClientRect();
+    if (r.bottom > window.innerHeight + 1) issues.push({ type: 'combat-fold', detail: `End turn at y=${Math.round(r.top)} below the ${window.innerHeight}px screen` });
+    const card = document.querySelector('.hand .card');
+    if (card && card.getBoundingClientRect().top > window.innerHeight) issues.push({ type: 'combat-fold', detail: 'hand starts below the first screen' });
+  }
+  const choice = document.querySelector('[data-testid=tide-choice] .sheet');
+  const gauge = document.querySelector('[data-testid=tide]');
+  if (choice && gauge) {
+    const a = choice.getBoundingClientRect(), b = gauge.getBoundingClientRect();
+    const w = Math.min(a.right, b.right) - Math.max(a.left, b.left);
+    const h = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+    if (w > 0 && h > 0) issues.push({ type: 'modal-covers-gauge', detail: 'tide choice sheet covers the tide gauge' });
+  }
+  return issues;
+}

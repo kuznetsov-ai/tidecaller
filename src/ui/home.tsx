@@ -362,7 +362,7 @@ export function EndScreen() {
   const outcome = state.outcome;
   if (!outcome) return null;
   return (
-    <section className="screen end" data-testid="end">
+    <section className={`screen endscreen ${outcome.victory ? 'won' : 'lost'}`} data-testid="end">
       <p className="kicker">{outcome.victory ? tx(lang, 'Книга закрыта', 'The book is closed') : tx(lang, 'Рейс оборвался', 'The voyage stopped')}</p>
       <h1>{outcome.victory ? tx(lang, 'Луна замолчала', 'The moon went quiet') : tx(lang, 'Вода забрала своё', 'The water took its due')}</h1>
       <p className="prose">{lang === 'ru' ? outcome.tipRu : outcome.tipEn}</p>
@@ -370,7 +370,7 @@ export function EndScreen() {
         {tx(lang, 'Акт', 'Act')} {outcome.act} · {tx(lang, 'узлов', 'nodes')} {outcome.floors} · {tx(lang, 'соль', 'salt')} +{outcome.marks}
       </p>
       {outcome.newUnlocks.length > 0 && (
-        <p>{tx(lang, 'Открыт новый журнал прилива. Он ждёт на выборе рейса.', 'A new tide chart is open. It waits on the voyage select.')}</p>
+        <p className="unlock">{tx(lang, 'Открыт новый журнал прилива. Он ждёт на выборе рейса.', 'A new tide chart is open. It waits on the voyage select.')}</p>
       )}
       <div className="row-actions">
         <button type="button" onClick={() => dispatch({ type: 'beginSelect' })}>

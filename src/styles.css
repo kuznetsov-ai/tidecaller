@@ -208,7 +208,12 @@ h2 { margin: 8px 0; font-size: 28px; }
 .card.hot { animation: glow 1.4s ease-in-out infinite; }
 @keyframes glow { 50% { box-shadow: 0 0 0 3px #e2b15a, 0 16px 30px rgba(226, 177, 90, 0.35); } }
 .piles, .phials { display: flex; flex-direction: column; gap: 8px; }
-.end { background: var(--gold); color: #1c1712; font-weight: 700; }
+button.end { background: var(--gold); color: #1c1712; font-weight: 700; }
+/* End-of-voyage screen: dark like the rest of the game (it used to inherit the gold End-turn button style). */
+.endscreen h1 { color: var(--gold-2); }
+.endscreen.lost h1 { color: var(--bone); }
+.endscreen .prose { color: var(--bone); }
+.endscreen .unlock { color: var(--gold); font-weight: 700; }
 .pile, .phial { background: transparent; }
 
 .map-wrap { position: relative; overflow: auto; max-height: calc(100vh - 180px); margin-top: 12px; border-radius: 20px; background: rgba(0,0,0,.18); }
