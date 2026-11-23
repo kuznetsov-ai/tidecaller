@@ -273,7 +273,7 @@ export function HelpScreen() {
       <div className="help-grid">
         <article>
           <h2>{tx(lang, 'Ход', 'A turn')}</h2>
-          <p>{tx(lang, 'Три энергии, пять карт. Сыграйте узлы, закройте ход. Потом бьёт враг — по числу на намерении. Защита держится только до начала вашего следующего хода.', 'Three energy, five cards. Play knots, end the turn. Then the enemy hits for the number on their intent. Block lasts only until your next turn starts.')}</p>
+          <p>{tx(lang, 'Три энергии, пять карт. Сыграйте узлы, закройте ход. Потом бьёт враг — по числу на намерении. Защита держится только до начала вашего следующего хода, а защита врага — до его следующего действия.', 'Three energy, five cards. Play knots, end the turn. Then the enemy hits for the number on their intent. Block lasts only until your next turn starts; enemy block lasts until its next action.')}</p>
         </article>
         <article>
           <h2>{tx(lang, 'Прилив 0–8', 'Tide 0–8')}</h2>

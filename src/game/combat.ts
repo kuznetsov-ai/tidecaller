@@ -658,6 +658,8 @@ export function endTurn(combat: CombatState, rng: Rng): Fx[] {
       enemy.summoned = false;
       continue;
     }
+    // Like the player's, an enemy's block only lasts until its own next action.
+    enemy.block = 0;
     const intents = previewIntents(enemy, combat);
     for (const intent of intents) {
       applyIntent(combat, enemy, intent, rng, fx);
