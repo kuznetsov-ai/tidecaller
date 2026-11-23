@@ -487,10 +487,10 @@ export function playCard(
   const def = CARDS[card.id];
   if (!def || def.unplayable) return { fx };
   const effects = effectsOf(def, card.up);
-  const choose = effects.find((e) => e.op === 'tideChoose');
-  if (choose && choose.op === 'tideChoose' && opt.tideDir == null) return { fx, needsTide: choose.d };
   const cost = cardCost(card, combat);
   if (combat.energy < cost) return { fx };
+  const choose = effects.find((e) => e.op === 'tideChoose');
+  if (choose && choose.op === 'tideChoose' && opt.tideDir == null) return { fx, needsTide: choose.d };
   combat.energy -= cost;
   if (combat.cheapNext) combat.cheapNext = 0;
   combat.hand.splice(idx, 1);

@@ -552,3 +552,12 @@ describe('phials', () => {
     expect(c.player.hp).toBe(c.player.maxHp);
   });
 });
+
+describe('tide choice needs energy first', () => {
+  it('an unaffordable Moonstep does not open the direction prompt', () => {
+    const c = mkCombat();
+    c.energy = 0;
+    const m = give(c, card('moonstep'))[0];
+    expect(playCard(c, m.uid, rng(), { target: 0 }).needsTide).toBeUndefined();
+  });
+});

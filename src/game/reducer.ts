@@ -700,10 +700,11 @@ function apply(state: GameState, action: Action, rng: Rng): void {
     }
     case 'tideChoice': {
       if (!state.combat || !state.pending) return;
-      const result = playCard(state.combat, state.pending.uid, rng, { target: state.target, tideDir: action.dir });
+      const uid = state.pending.uid;
+      const result = playCard(state.combat, uid, rng, { target: state.target, tideDir: action.dir });
       state.pending = null;
       pushFx(state, result.fx);
-      advanceTutorial(state, true);
+      if (!state.combat.hand.some((c) => c.uid === uid)) advanceTutorial(state, true);
       return;
     }
     case 'cancelPending':
