@@ -53,7 +53,7 @@ export function MenuScreen() {
             {tx(lang, 'Как держится вода', 'How the water works')}
           </button>
           <a className="ghost link" href="./onepager.html">
-            {tx(lang, 'О игре', 'About the game')}
+            {tx(lang, 'Об игре', 'About the game')}
           </a>
         </div>
         <p className="fine">
