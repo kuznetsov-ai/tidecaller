@@ -1,5 +1,8 @@
+// Mobile emulation zooms out to fit wide content (innerWidth grows), so measure against the device width.
+function VW() { return Math.min(window.innerWidth, (window.screen && window.screen.width) || window.innerWidth); }
+function VH() { return Math.min(window.innerHeight, (window.screen && window.screen.height) || window.innerHeight); }
 function layoutCheck() {
-  const vw = window.innerWidth;
+  const vw = VW();
   const issues = [];
   const desc = (el) => {
     const h = el;
@@ -120,7 +123,7 @@ function hintCheck() {
   const b = document.querySelector('.coach-bubble');
   if (!b) return issues;
   const r = b.getBoundingClientRect();
-  if (r.left < 0 || r.right > window.innerWidth + 1) issues.push({ type: 'hint-offscreen', detail: `bubble x=${Math.round(r.left)}..${Math.round(r.right)}` });
+  if (r.left < 0 || r.right > VW() + 1) issues.push({ type: 'hint-offscreen', detail: `bubble x=${Math.round(r.left)}..${Math.round(r.right)}` });
   for (const el of document.querySelectorAll('button, a[href], input, select, [role=button], .card, .relic, .node')) {
     if (b.contains(el)) continue;
     const e = el.getBoundingClientRect();
@@ -204,15 +207,15 @@ function contrastCheck() {
 /** Mobile combat: the hand and End turn must be on the first screen; the tide choice must not hide the gauge. */
 function mobileCombatCheck() {
   const issues = [];
-  if (window.innerWidth > 600) return issues;
+  if (VW() > 600) return issues;
   const app = document.querySelector('[data-screen=combat]');
   if (!app) return issues;
   const end = document.querySelector('[data-testid=end-turn]');
   if (end && !document.querySelector('.modal')) {
     const r = end.getBoundingClientRect();
-    if (r.bottom > window.innerHeight + 1) issues.push({ type: 'combat-fold', detail: `End turn at y=${Math.round(r.top)} below the ${window.innerHeight}px screen` });
+    if (r.bottom > VH() + 1) issues.push({ type: 'combat-fold', detail: `End turn at y=${Math.round(r.top)} below the ${VH()}px screen` });
     const card = document.querySelector('.hand .card');
-    if (card && card.getBoundingClientRect().top > window.innerHeight) issues.push({ type: 'combat-fold', detail: 'hand starts below the first screen' });
+    if (card && card.getBoundingClientRect().top > VH()) issues.push({ type: 'combat-fold', detail: 'hand starts below the first screen' });
   }
   const choice = document.querySelector('[data-testid=tide-choice] .sheet');
   const gauge = document.querySelector('[data-testid=tide]');

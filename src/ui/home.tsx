@@ -53,7 +53,7 @@ export function MenuScreen() {
           <button type="button" className="ghost" onClick={() => dispatch({ type: 'goto', screen: 'help' })}>
             {tx(lang, 'Как держится вода', 'How the water works')}
           </button>
-          <a className="ghost link" href="./onepager.html">
+          <a className="ghost link" href={lang === 'en' ? './onepager.html#en' : './onepager.html'}>
             {tx(lang, 'Об игре', 'About the game')}
           </a>
         </div>

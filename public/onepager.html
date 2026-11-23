@@ -19,12 +19,21 @@
       th, td { text-align:left; vertical-align:top; padding:10px 12px; border-bottom:1px solid var(--line); }
       th { color:var(--gold); font-weight:600; }
       ul { padding-left:1.2em; }
-      .back { font:14px/1 system-ui, sans-serif; }
+      .back { font:14px/1 system-ui, sans-serif; display:flex; gap:16px; flex-wrap:wrap; }
+      td, th { overflow-wrap:anywhere; }
+      @media (max-width: 600px) {
+        body { font-size:17px; }
+        main { width:calc(100% - 24px); padding-top:24px; }
+        table { table-layout:fixed; font-size:14px; }
+        th, td { padding:8px 6px; }
+        .lede { font-size:19px; }
+      }
+      #en { margin-top:56px; padding-top:24px; border-top:1px solid var(--line); }
     </style>
   </head>
   <body>
     <main>
-      <p class="back"><a href="./index.html">← К игре</a></p>
+      <p class="back"><a href="./index.html">← К игре</a> <a href="#en" lang="en">English summary ↓</a></p>
       <p class="kicker">Рогалит-декбилдер · прототип</p>
       <h1>Зов прилива</h1>
       <p class="lede">TIDECALLER. Прилив — клинок, который вы держите вдвоём.</p>
@@ -39,7 +48,7 @@
       <p>В бою читает намерение, смотрит, куда уйдёт вода после хода, и решает: закрыться, ударить в своей стихии или сдвинуть шкалу, чтобы следующий узел стал сильнее, а вражеский — слабее. Намерения, которые зависят от воды, пересчитываются сразу. После боя — карта из трёх, иногда реликвия. На карте акта путь только вперёд: бои, случай с выбором, лавка, отдых, элита, босс. Между рейсами соль копится на верфи: новые мастера, редкие узлы, чуть больше корпуса. Проигрыш тоже платит, просто меньше.</p>
 
       <h2>Чем выделяется</h2>
-      <p>Жанр знакомый нарочно: за десять секунд понятно, что делать. Незнакомо одно — вода, и она на каждом решении. Три мастера учат её с разных сторон. Бринь держит середину. Киль сам толкает паводок и рискует штормом. Мотылёк тянет отлив и лечится на мёртвой воде. Боссы читаются: Страж бьёт сильнее на отливе, Мадам Колокол повторяет ваш последний узел, Луна просыпается, если шторм входил трижды. Это не список ключевых слов. Это один прибор, на который смотришь весь рейс.</p>
+      <p>Жанр знакомый нарочно: за десять секунд понятно, что делать. Незнакомо одно — вода, и она на каждом решении. Три мастера учат её с разных сторон. Бринь держит середину. Киль сам толкает паводок и рискует штормом. Мотылёк тянет отлив и лечится на мёртвой воде. Боссы читаются: Страж бьёт сильнее на отливе, Мадам Колокол отзванивает ваш последний узел против вас, Луна просыпается, если шторм входил трижды. Это не список ключевых слов. Это один прибор, на который смотришь весь рейс.</p>
 
       <h2>Почему интересно</h2>
       <p>Ход короткий, но в нём есть развилка, которую видно: сыграть сильную карту сейчас или сдвинуть воду под неё. Ошибка не прячется в тумане — шторм подписан на шкале до того, как вы закрыли ход. Рейс хочется переиграть, потому что колода, путь и мастер каждый раз другие, а верфь помнит, как далеко вы зашли. Прототип уже держит полный рейс из трёх актов: для внимательного первого прохождения это примерно 40–60 минут, средний заход с учётом ранних поражений — около 35 минут решений. В первых двух боях мелководья новая партия не заканчивается.</p>
@@ -66,7 +75,7 @@
         <li>Три мастера. Киль и Мотылёк открываются на верфи.</li>
         <li>Обучение в бухте, журнал, бестиарий, два журнала сложности после босса и победы.</li>
         <li>Сохранение в браузере, звук на WebAudio, русский и английский.</li>
-        <li>Около 45 карт, 16 реликвий, 10 событий, 18 существ.</li>
+        <li>46 карт, 16 реликвий, 10 событий, 19 существ в бестиарии.</li>
       </ul>
       <p>Нет финальных иллюстраций и записанной музыки. Стиль уже выбран: тёмная вода, кость, латунь, линейный рисунок. Его можно довести, не выбрасывая интерфейс.</p>
 
@@ -91,6 +100,14 @@
         <li><strong>«Давайте ещё одного персонажа».</strong> Четвёртый мастер и четвёртый акт выписаны как не входящие в эту версию.</li>
         <li><strong>Полка Steam тесная.</strong> Отличие видно на капсуле. Если гифка не считывается, страница не сработает — это проверяется в пятом месяце, не после релиза.</li>
       </ul>
+      <section id="en" lang="en">
+        <p class="kicker">English summary</p>
+        <h2>TIDECALLER</h2>
+        <p>A short roguelike deckbuilder where you and the enemy share one resource: a tide gauge from 0 to 8. Ebb cards are stronger at 0–3, slack at 3–5, flood at 5–8; the water rises by 1 at the end of each of your turns. A storm at 7–8 hits everyone through block, dead water at 0–1 hits enemies and trims your hand.</p>
+        <p>Every turn is a visible choice: play the strong card now, or move the water first so your next knot gets stronger and the enemy's weaker. Enemy intents that depend on the water are shown for the tide they will actually see.</p>
+        <p>The prototype holds a full three-act voyage: three wrights, 46 cards, 16 relics, 10 events, 19 creatures, three bosses, a drydock meta, two difficulty charts, first-visit tips, Russian and English. A careful first run takes about 40–60 minutes.</p>
+        <p class="back"><a href="./index.html">← Back to the game</a></p>
+      </section>
     </main>
   </body>
 </html>
