@@ -347,6 +347,24 @@ export function MapScreen() {
   const run = state.run;
   const lang = state.meta.settings.lang;
   const [deckOpen, setDeckOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [more, setMore] = useState({ up: false, down: false });
+  const where = `${run?.act}:${run?.map.current}`;
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    // Bring the nodes you can pick into view, then show which way the map continues.
+    const target = el.querySelector<HTMLElement>('.node.can') ?? el.querySelector<HTMLElement>('.node.here');
+    if (target) el.scrollTop = Math.max(0, target.offsetTop - el.clientHeight / 2);
+    const update = () => setMore({ up: el.scrollTop > 4, down: el.scrollTop + el.clientHeight < el.scrollHeight - 4 });
+    update();
+    el.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    return () => {
+      el.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
+  }, [where]);
   if (!run) return null;
   const open = new Set(reachableIds(run.map));
   const height = 9 * 92 + 40;
@@ -368,7 +386,7 @@ export function MapScreen() {
           {tx(lang, 'Меню', 'Menu')}
         </button>
       </header>
-      <div className="map-wrap">
+      <div className={`map-wrap${more.up ? ' more-up' : ''}${more.down ? ' more-down' : ''}`} ref={wrapRef} data-testid="map-wrap">
         <div className="map-box" style={{ height }}>
         <svg className="map" viewBox={`0 0 680 ${height}`} preserveAspectRatio="none" role="img">
           {run.map.nodes.flatMap((node) =>

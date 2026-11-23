@@ -81,7 +81,7 @@ export function RewardScreen() {
     <section className="screen reward" data-testid="reward">
       <RunMenuButton lang={lang} />
       <p className="kicker">{tx(lang, 'После боя', 'After the fight')}</p>
-      <h1>
+      <h1 className="reward-title">
         +{reward.gold} {tx(lang, 'монет', 'coins')}
         {reward.heal > 0 ? ` · ${tx(lang, 'лечение', 'heal')} ${reward.heal}` : ''}
       </h1>

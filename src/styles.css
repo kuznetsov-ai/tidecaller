@@ -368,3 +368,19 @@ h1, h2, .card strong, .enemy strong, .choices strong { overflow-wrap: break-word
   .modal .choices button { flex: 1 1 120px; }
 }
 .run-menu { float: right; margin: 0 0 8px 12px; padding: 6px 14px; position: relative; z-index: 2; }
+
+/* camp screens: one centred column on wide screens, and air between blocks */
+.screen.reward, .screen.shop, .screen.rest, .screen.event, .screen.story { max-width: 1120px; margin: 0 auto; }
+.reward-title { font-size: clamp(28px, 4vw, 48px); }
+.screen.reward > button, .screen.shop > button, .screen.rest > button, .screen.event > button { margin: 12px 10px 0 0; }
+.screen > .choices + *, .screen > .card-grid + *, .screen > .relics, .screen .choices + .relics { margin-top: 16px; }
+
+/* fights and the map fit the window; long parts scroll inside instead of the page */
+.screen.combat, .screen.map-screen { height: 100vh; height: 100dvh; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.screen.combat { padding-bottom: 10px; }
+.combat > .topbar, .map-screen > .topbar, .combat > .dock, .map-screen > .map-foot { flex: none; }
+.combat-grid { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+.map-wrap { flex: 1 1 auto; min-height: 0; max-height: none; scrollbar-width: thin; scrollbar-color: rgba(226, 177, 90, 0.5) transparent; }
+.map-wrap.more-down { -webkit-mask-image: linear-gradient(#000 88%, transparent); mask-image: linear-gradient(#000 88%, transparent); }
+.map-wrap.more-up { -webkit-mask-image: linear-gradient(transparent, #000 12%); mask-image: linear-gradient(transparent, #000 12%); }
+.map-wrap.more-up.more-down { -webkit-mask-image: linear-gradient(transparent, #000 10%, #000 90%, transparent); mask-image: linear-gradient(transparent, #000 10%, #000 90%, transparent); }
