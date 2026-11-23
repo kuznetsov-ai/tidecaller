@@ -35,9 +35,25 @@ export function cardCost(card: CardInst, combat: Pick<CombatState, 'tide' | 'che
   return Math.max(0, c);
 }
 
+/**
+ * Tide the enemies will act on if the player ends the turn now: curse pushes in hand,
+ * then the natural drift (+1 unless anchored), then Glass Moon's first-storm reset.
+ */
+export function projectedTide(combat: CombatState): number {
+  let t = combat.tide;
+  for (const card of combat.hand) {
+    for (const e of CARDS[card.id]?.endTurn ?? []) if (e.op === 'tide') t = clampTide(t + e.d);
+  }
+  if (willDrift(combat.turn, combat.relics.includes('rusted_anchor'))) t = clampTide(t + 1);
+  if (t >= 7 && combat.tide < 7 && combat.relics.includes('glass_moon') && !combat.moonUsed) t = 4;
+  return t;
+}
+
 export function previewIntents(enemy: EnemyInst, combat: CombatState): ResolvedIntent[] {
   if (enemy.hp <= 0) return [];
-  return rawIntents(enemy, combat).map((raw) => {
+  // During the player's turn, show what the enemy will do on the tide it will actually see.
+  const view = combat.phase === 'player' ? { ...combat, tide: projectedTide(combat) } : combat;
+  return rawIntents(enemy, view).map((raw) => {
     if (raw.kind === 'attack') {
       const n = strikeValue(raw.n ?? 0, enemy.strength, enemy.weak, combat.chart);
       return { ...raw, n, hits: raw.hits ?? 1, pierce: raw.pierce ?? 0 };
