@@ -86,7 +86,7 @@ export default function App() {
 
   return (
     <PauseApi.Provider value={{ toggle: () => setPause((v) => !v), close: () => setPause(false) }}>
-      <div className="app" data-testid="app" data-screen={state.screen} data-shake={state.fx.some((fx) => fx.t === 'shake') ? '1' : '0'}>
+      <div className="app" data-testid="app" data-screen={state.screen} data-shake={state.meta.settings.shake && !state.meta.settings.reduced && state.fx.some((fx) => fx.t === 'shake') ? '1' : '0'}>
         {screen}
         {pause && inRun && (
           <div className="modal" data-testid="pause">
