@@ -208,14 +208,14 @@ describe('tide edges and thresholds', () => {
     expect(ehp - c.enemies[0].hp).toBe(2);
     expect(c.hand.length).toBe(4);
   });
-  it('tide 1 → 2 by drift is no longer dead water', () => {
+  it('closing the turn at 1 is dead water even though the drift lifts it to 2', () => {
     const c = mkCombat(['brinecrab'], { tide: 1 });
     c.hand = [];
     const ehp = c.enemies[0].hp;
     endTurn(c, rng());
     expect(c.tide).toBe(2);
-    expect(c.enemies[0].hp).toBe(ehp);
-    expect(c.hand.length).toBe(5);
+    expect(c.enemies[0].hp).toBe(ehp - 2);
+    expect(c.hand.length).toBe(4);
   });
   it('tideChoose asks for a direction first and spends nothing', () => {
     const c = mkCombat();

@@ -49,6 +49,18 @@ export function projectedTide(combat: CombatState): number {
   return t;
 }
 
+/** Which edge fires when the turn ends now: storm (7–8 after the drift) or dead water (0–1 before or after it). */
+export function projectedEdge(combat: CombatState): 'storm' | 'strand' | null {
+  let pre = combat.tide;
+  for (const card of combat.hand) {
+    for (const e of CARDS[card.id]?.endTurn ?? []) if (e.op === 'tide') pre = clampTide(pre + e.d);
+  }
+  const post = projectedTide(combat);
+  if (post >= 7) return 'storm';
+  if (post <= 1 || pre <= 1) return 'strand';
+  return null;
+}
+
 export function previewIntents(enemy: EnemyInst, combat: CombatState): ResolvedIntent[] {
   if (enemy.hp <= 0) return [];
   // Summoned this enemy phase: it acts from the next one (its intent appears on your turn).
@@ -633,6 +645,8 @@ export function endTurn(combat: CombatState, rng: Rng): Fx[] {
     else combat.discard.push(card);
   }
   combat.hand = stay;
+  // Dead water counts if the water stood at 0–1 when you closed the turn, even if the drift then lifts it to 2.
+  const preDrift = combat.tide;
   if (willDrift(combat.turn, combat.relics.includes('rusted_anchor'))) {
     setTide(combat, combat.tide + 1, fx, rng, 'drift');
     fx.push({ t: 'log', code: 'drift' });
@@ -645,7 +659,7 @@ export function endTurn(combat: CombatState, rng: Rng): Fx[] {
     for (const e of combat.enemies) if (e.hp > 0) damageEnemy(combat, e, 3, 'true', fx);
     fx.push({ t: 'log', code: 'storm' });
     killCheck(combat, fx);
-  } else if (combat.tide <= 1) {
+  } else if (combat.tide <= 1 || preDrift <= 1) {
     combat.drawPenalty = 1;
     for (const e of combat.enemies) if (e.hp > 0) damageEnemy(combat, e, 2, 'true', fx);
     fx.push({ t: 'log', code: 'strand' });

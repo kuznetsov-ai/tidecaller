@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { endTurn, previewIntents } from '../src/game/combat';
+import { endTurn, previewIntents, projectedEdge } from '../src/game/combat';
 import { card, mkCombat, rng } from './helpers';
 
 describe('maximus review fixes', () => {
@@ -33,5 +33,31 @@ describe('summons (P1-5)', () => {
     const lash = c.enemies.find((e) => e.defId === 'kelp_minion')!;
     expect(lash).toBeTruthy();
     expect(lash.maxHp).toBeGreaterThan(14);
+  });
+});
+
+describe('dead water timing (P1-8)', () => {
+  it('fires when the turn closes at 1 even though the drift lifts it to 2', () => {
+    const c = mkCombat(['salt_knight'], { tide: 1 });
+    c.player.hp = c.player.maxHp = 999;
+    c.hand = [];
+    const hp = c.enemies[0].hp;
+    expect(projectedEdge(c)).toBe('strand');
+    endTurn(c, rng());
+    expect(c.enemies[0].hp).toBeLessThanOrEqual(hp - 2);
+    expect(c.hand.length).toBe(4);
+  });
+  it('does not fire at 2', () => {
+    const c = mkCombat(['salt_knight'], { tide: 2 });
+    c.player.hp = c.player.maxHp = 999;
+    c.hand = [];
+    expect(projectedEdge(c)).toBe(null);
+    endTurn(c, rng());
+    expect(c.hand.length).toBe(5);
+  });
+  it('storm still fires on 6 → 7', () => {
+    const c = mkCombat(['salt_knight'], { tide: 6 });
+    c.hand = [];
+    expect(projectedEdge(c)).toBe('storm');
   });
 });

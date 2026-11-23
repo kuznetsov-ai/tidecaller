@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { CARDS } from '../game/cards';
-import { cardCost, debtActive, previewIntents } from '../game/combat';
+import { cardCost, debtActive, previewIntents, projectedEdge, projectedTide } from '../game/combat';
 import { cardLines } from '../game/describe';
 import { ENEMIES } from '../game/enemies';
 import { RELICS } from '../game/relics';
@@ -124,6 +124,8 @@ export function TideGauge({ combat, lang }: { combat: CombatState; lang: Lang })
     .map((id) => tr(BAND_NAME[id], lang))
     .join(' · ');
   const drift = willDrift(combat.turn, combat.relics.includes('rusted_anchor'));
+  const edge = combat.phase === 'player' ? projectedEdge(combat) : null;
+  const next = projectedTide(combat);
   return (
     <aside className={`gauge band-${band}`} data-testid="tide" data-tide={combat.tide}>
       <p className="band-name">{tr(BAND_NAME[band], lang)}</p>
@@ -138,8 +140,10 @@ export function TideGauge({ combat, lang }: { combat: CombatState; lang: Lang })
       </ol>
       <p className="drift">
         {drift
-          ? tx(lang, 'В конце хода прилив +1', 'Tide +1 at end of turn')
+          ? tx(lang, `В конце хода прилив +1 → ${next}`, `Tide +1 at end of turn → ${next}`)
           : tx(lang, 'Якорь держит воду в этот ход', 'The anchor holds this turn')}
+        {edge === 'storm' && <b className="edge storm">{tx(lang, ' · будет шторм', ' · storm coming')}</b>}
+        {edge === 'strand' && <b className="edge strand">{tx(lang, ' · сработает мёртвая вода', ' · dead water will hit')}</b>}
       </p>
     </aside>
   );
