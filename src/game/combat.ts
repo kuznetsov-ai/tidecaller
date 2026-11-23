@@ -51,6 +51,8 @@ export function projectedTide(combat: CombatState): number {
 
 export function previewIntents(enemy: EnemyInst, combat: CombatState): ResolvedIntent[] {
   if (enemy.hp <= 0) return [];
+  // A freshly summoned enemy sits out the next enemy phase, so it has nothing to show.
+  if (enemy.summoned) return [];
   // During the player's turn, show what the enemy will do on the tide it will actually see.
   const view = combat.phase === 'player' ? { ...combat, tide: projectedTide(combat) } : combat;
   return rawIntents(enemy, view).map((raw) => {

@@ -191,6 +191,11 @@ export function EnemyPlate({
           {intents.map((intent, i) => (
             <IntentChip key={i} intent={intent} lang={lang} />
           ))}
+          {enemy.summoned && enemy.hp > 0 && (
+            <span className="intent kind-wait" title={tx(lang, 'Только что призван: пропустит ход', 'Just summoned: skips a turn')}>
+              —<small>{tx(lang, 'ждёт', 'waits')}</small>
+            </span>
+          )}
         </div>
         <div className="pills">
           {enemy.block > 0 && <span>{tx(lang, 'защита', 'block')} {enemy.block}</span>}
