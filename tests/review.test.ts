@@ -114,3 +114,24 @@ describe('preview = real damage for every simple attack card at every tide', () 
     }
   }
 });
+
+import { inRun } from './helpers';
+import { reduce } from '../src/game/reducer';
+
+describe('abandon salt farm (P1-3)', () => {
+  it('abandoning a chart-2 voyage before any node pays no chart bonus', () => {
+    let s = inRun();
+    s.run!.chart = 2;
+    const before = s.meta.marks;
+    s = reduce(s, { type: 'abandon' });
+    expect(s.meta.marks - before).toBe(0);
+  });
+  it('the chart bonus is paid in full after 3 floors', () => {
+    let s = inRun();
+    s.run!.chart = 2;
+    s.run!.floors = 3;
+    const before = s.meta.marks;
+    s = reduce(s, { type: 'abandon' });
+    expect(s.meta.marks - before).toBe(3 * 2 + 12);
+  });
+});

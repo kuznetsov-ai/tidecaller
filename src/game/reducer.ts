@@ -293,7 +293,9 @@ function finishRun(state: GameState, victory: boolean, source: string): void {
   const run = state.run;
   if (!run) return;
   const before = state.meta.maxChart;
-  const marks = run.floors * 2 + run.elitesKilled * 7 + run.bossesKilled * 14 + (victory ? 46 : 0) + run.chart * 6;
+  // The chart bonus is earned by sailing: nothing for a voyage abandoned before any node, full after 3.
+  const chartBonus = run.chart * 2 * Math.min(run.floors, 3);
+  const marks = run.floors * 2 + run.elitesKilled * 7 + run.bossesKilled * 14 + (victory ? 46 : 0) + chartBonus;
   state.meta.marks += marks;
   state.meta.stats.marksEarned += marks;
   state.meta.stats.runs += 1;

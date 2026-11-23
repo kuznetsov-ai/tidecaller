@@ -11,6 +11,7 @@ import { tx } from './ui/tx';
 export default function App() {
   const state = useGame();
   const [pause, setPause] = useState(false);
+  const [armAbandon, setArmAbandon] = useState(false);
   const lang = state.meta.settings.lang;
   const inRun = ['combat', 'map', 'event', 'shop', 'rest', 'reward', 'story'].includes(state.screen);
 
@@ -22,6 +23,10 @@ export default function App() {
   useEffect(() => {
     setPause(false);
   }, [state.screen]);
+
+  useEffect(() => {
+    if (!pause) setArmAbandon(false);
+  }, [pause]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -99,8 +104,13 @@ export default function App() {
                 <button type="button" className="ghost" onClick={() => { setPause(false); dispatch({ type: 'park' }); }}>
                   {tx(lang, 'В меню, рейс сохранится', 'Menu, voyage kept')}
                 </button>
-                <button type="button" className="ghost" onClick={() => dispatch({ type: 'abandon' })}>
-                  {tx(lang, 'Бросить рейс', 'Abandon voyage')}
+                <button
+                  type="button"
+                  className={armAbandon ? 'danger' : 'ghost'}
+                  data-testid="abandon"
+                  onClick={() => (armAbandon ? dispatch({ type: 'abandon' }) : setArmAbandon(true))}
+                >
+                  {armAbandon ? tx(lang, 'Точно бросить рейс', 'Yes, abandon the voyage') : tx(lang, 'Бросить рейс', 'Abandon voyage')}
                 </button>
               </div>
             </div>
